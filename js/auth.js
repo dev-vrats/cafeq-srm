@@ -7,13 +7,15 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
   createUserProfile,
-  getUserProfile
+  getUserProfile,
+  checkIfOwnerExists
 } from './firebase.js';
 
 // ── DOM refs ──
 const loginTab    = document.getElementById('login-tab');
 const signupTab   = document.getElementById('signup-tab');
 const nameField   = document.getElementById('name-field');
+const ownerField  = document.getElementById('owner-field');
 const nameInput   = document.getElementById('name-input');
 const emailInput  = document.getElementById('email-input');
 const passInput   = document.getElementById('pass-input');
@@ -50,12 +52,20 @@ function switchMode(toLogin) {
   if (toLogin) {
     nameField.classList.remove('visible-field');
     nameField.classList.add('hidden-field');
+    if (ownerField) {
+      ownerField.classList.remove('visible-field');
+      ownerField.classList.add('hidden-field');
+    }
     cardTitle.textContent = 'Welcome back';
     cardSub.textContent = 'Sign in to your CaféQ account';
     submitBtn.querySelector('.btn-text').textContent = 'Sign In';
   } else {
     nameField.classList.remove('hidden-field');
     nameField.classList.add('visible-field');
+    if (ownerField) {
+      ownerField.classList.remove('hidden-field');
+      ownerField.classList.add('visible-field');
+    }
     cardTitle.textContent = 'Join CaféQ';
     cardSub.textContent = 'Create your account & start ordering';
     submitBtn.querySelector('.btn-text').textContent = 'Create Account';
@@ -102,9 +112,27 @@ async function handleAuth() {
         window.location.replace('home.html');
       }
     } else {
+      const wantsOwner = document.getElementById('owner-checkbox')?.checked;
+      let finalRole = 'student';
+
+      if (wantsOwner) {
+        const ownerExists = await checkIfOwnerExists();
+        if (ownerExists) {
+          showError('An owner is already registered.');
+          setLoading(false);
+          return;
+        }
+        finalRole = 'owner';
+      }
+
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
-      await createUserProfile(cred.user.uid, name, email, 'student');
-      window.location.replace('home.html');
+      await createUserProfile(cred.user.uid, name, email, finalRole);
+      
+      if (finalRole === 'owner') {
+        window.location.replace('owner.html');
+      } else {
+        window.location.replace('home.html');
+      }
     }
   } catch (err) {
     setLoading(false);

@@ -62,6 +62,12 @@ export async function createUserProfile(uid, name, email, role = 'student') {
   });
 }
 
+export async function checkIfOwnerExists() {
+  const q = query(collection(db, 'users'), where('role', '==', 'owner'), limit(1));
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+
 export async function getUserProfile(uid) {
   const docSnap = await getDoc(doc(db, 'users', uid));
   return docSnap.exists() ? docSnap.data() : null;
