@@ -180,8 +180,8 @@ function buildOwnerOrderCard(order) {
         </div>
       </div>
       <div class="order-right">
-        <span class="order-amount">₹${order.totalAmount}</span>
-        <span class="badge ${getBadgeClass(order.status)}">${statusLabel}</span>
+        <span class="order-amount">₹${order.totalAmount || order.total || '0'}</span>
+        <span class="badge ${getBadgeClass(order.status)}">${statusLabel === 'pickedup' ? '<span class="material-symbols-rounded" style="font-size:0.875rem">task_alt</span> Done' : statusLabel}</span>
       </div>
     </div>
 
