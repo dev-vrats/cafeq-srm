@@ -97,12 +97,17 @@ async function handleAuth() {
   isAuthHandling = true;
   try {
     if (isLogin) {
-      await signInWithEmailAndPassword(auth, email, pass);
-      window.location.replace('role.html');
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      const profile = await getUserProfile(cred.user.uid);
+      if (profile?.role === 'owner') {
+        window.location.replace('owner.html');
+      } else {
+        window.location.replace('home.html');
+      }
     } else {
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
       await createUserProfile(cred.user.uid, name, email, 'student');
-      window.location.replace('role.html');
+      window.location.replace('home.html');
     }
   } catch (err) {
     setLoading(false);
