@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>CaféQ — Order Coffee · SRM</title>
+  <meta name="description" content="Order your coffee from SRM Nescafé kiosk, track in real-time, and pick up on your schedule." />
+  <meta name="theme-color" content="#1A0A06" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/home.css?v=2" />
+</head>
+<body>
+  <div class="bg-layer" aria-hidden="true"></div>
+  <div id="toast-container"></div>
+
+  <!-- App Shell -->
+  <div class="app-shell">
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div>
+        <div class="top-bar-brand">CaféQ</div>
+        <div id="user-greeting" class="top-bar-greeting">Hey there</div>
+      </div>
+      <div class="top-bar-right">
+        <button class="avatar-btn" id="avatar-btn" aria-label="Profile">
+          <img id="avatar-img" src="" alt="Profile" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:50%;">
+          <span id="avatar-initials">?</span>
+          <input type="file" id="profile-photo-input" accept="image/*" style="display:none;">
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Content -->
+    <main class="main-content">
+
+      <!-- ═══ HOME TAB ═══ -->
+      <section id="tab-home" class="tab-panel active">
+
+        <!-- Rush Meter -->
+        <div class="glass rush-card animate-fade-up">
+          <div class="rush-header">
+            <span class="rush-label">Live Rush Meter</span>
+            <div id="rush-level-badge" class="rush-level-badge relaxed">
+              <span class="rush-dot"></span>Relaxed
+            </div>
+          </div>
+          <div class="rush-bar">
+            <div id="rush-fill" class="rush-fill relaxed" style="width:30%"></div>
+          </div>
+          <p id="rush-tip" class="rush-tip">Kiosk is chill right now. Perfect time to grab your order!</p>
+        </div>
+
+        <!-- AI Suggestions -->
+        <div class="glass-card ai-card animate-fade-up stagger-1">
+          <div class="ai-header">
+            <span class="material-symbols-rounded ai-gem-icon" style="font-size:1.5rem;color:var(--gold)">auto_awesome</span>
+            <div>
+              <div class="heading-md">Smart Picks For You</div>
+              <div style="font-size:0.75rem;color:var(--text-secondary)">AI-powered suggestions based on your vibe</div>
+            </div>
+          </div>
+          <div id="ai-suggestions" class="ai-suggestion-list">
+            <!-- Loaded by JS -->
+          </div>
+        </div>
+
+        <!-- Featured Combos -->
+        <div class="animate-fade-up stagger-2">
+          <div class="section-header">
+            <span class="section-title">Hot Combos</span>
+            <button class="section-see-all" onclick="document.querySelector('[data-tab=menu]').click()">See all</button>
+          </div>
+          <div id="featured-combos" style="display:flex;gap:var(--space-md);overflow-x:auto;scrollbar-width:none;padding-bottom:4px;-webkit-overflow-scrolling:touch">
+            <!-- Loaded by JS -->
+          </div>
+        </div>
+
+        <!-- Quick CTA -->
+        <div class="glass animate-fade-up stagger-3" style="padding:var(--space-lg);text-align:center">
+          <span class="material-symbols-rounded" style="font-size:2.5rem;color:var(--gold);display:block;margin-bottom:8px">local_cafe</span>
+          <div style="font-family:'Playfair Display',serif;font-size:1.125rem;font-weight:700;margin-bottom:4px">Ready to order?</div>
+          <div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:var(--space-md)">Browse the full menu and pick your slot</div>
+          <button class="btn btn-primary w-full" onclick="document.querySelector('[data-tab=menu]').click()">
+            Browse Menu
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ═══ MENU TAB ═══ -->
+      <section id="tab-menu" class="tab-panel">
+        <!-- Category Pills -->
+        <div id="cat-pills" class="category-scroll"></div>
+
+        <!-- Menu Grid -->
+        <div id="menu-grid" class="menu-grid"></div>
+      </section>
+
+      <!-- ═══ ORDERS TAB ═══ -->
+      <section id="tab-orders" class="tab-panel">
+        <div class="section-header">
+          <span class="section-title">My Orders</span>
+        </div>
+        <div id="orders-list">
+          <div class="empty-state">
+            <span class="material-symbols-rounded empty-state-emoji" style="font-size:3.5rem;color:var(--text-muted)">inventory_2</span>
+            <div class="empty-state-title">No orders yet</div>
+            <div class="empty-state-sub">Head to the menu and place your first order!</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ LOYALTY TAB ═══ -->
+      <section id="tab-loyalty" class="tab-panel">
+
+        <!-- Punch Card -->
+        <div class="glass-card punch-card animate-fade-up">
+          <div style="font-size:0.6875rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px">Loyalty Rewards</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;margin-bottom:4px">Buy 5 Coffees</div>
+          <div style="font-size:0.875rem;color:var(--text-secondary)">Get 1 Maggi absolutely free</div>
+
+          <div id="punch-grid" class="punch-grid">
+            <!-- Loaded by JS -->
+          </div>
+
+          <p id="punch-progress-text" class="punch-progress-text">
+            <span class="punch-progress-highlight">0/5 coffees</span> — 5 more for a free Maggi!
+          </p>
+        </div>
+
+        <!-- Coffee Pass -->
+        <div class="glass-card coffee-pass-card animate-fade-up stagger-1">
+          <div class="pass-header">
+            <span class="material-symbols-rounded pass-emoji" style="font-size:2rem;color:var(--gold)">confirmation_number</span>
+            <div>
+              <div class="pass-title">Monthly Coffee Pass</div>
+              <div class="pass-sub">30 coffees · Valid for 30 days</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-sm)">
+            <span style="font-size:0.875rem;color:var(--text-secondary)">Coffees used this month</span>
+            <span style="font-family:'Playfair Display',serif;font-weight:700;color:var(--gold)">0 / 30</span>
+          </div>
+          <div class="pass-progress">
+            <div id="pass-fill" class="pass-fill" style="width:0%"></div>
+          </div>
+          <div style="margin-top:var(--space-md)">
+            <button class="btn btn-glass w-full" style="font-size:0.875rem">
+              Contact Owner to Subscribe
+            </button>
+          </div>
+        </div>
+
+        <!-- Digital Khata -->
+        <div class="glass-card animate-fade-up stagger-2" style="padding:var(--space-lg)">
+          <div class="pass-header" style="margin-bottom:0">
+            <span class="material-symbols-rounded pass-emoji" style="font-size:2rem;color:var(--gold)">menu_book</span>
+            <div>
+              <div class="pass-title">Digital Khata</div>
+              <div class="pass-sub">Your credit balance with the kiosk</div>
+            </div>
+            <div style="margin-left:auto;text-align:right">
+              <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--gold)" id="khata-balance">₹0</div>
+              <div style="font-size:0.6875rem;color:var(--text-muted)">Available</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ═══ GROUP TAB ═══ -->
+      <section id="tab-group" class="tab-panel">
+
+        <div class="glass-card group-order-card animate-fade-up">
+          <div style="text-align:center;margin-bottom:var(--space-lg)">
+            <span class="material-symbols-rounded" style="font-size:3rem;color:var(--gold);display:block;margin-bottom:8px">group</span>
+            <div class="heading-md" style="margin-bottom:4px">Group Order</div>
+            <div style="font-size:0.875rem;color:var(--text-secondary)">Create a shared cart with your squad & pay individually</div>
+          </div>
+
+          <div class="group-invite-area">
+            <span class="material-symbols-rounded" style="font-size:1.75rem;display:block;text-align:center;margin-bottom:8px;color:var(--gold)">link</span>
+            <div style="font-weight:700;margin-bottom:4px;text-align:center">Share the link with friends</div>
+            <div style="font-size:0.8125rem;color:var(--text-muted);margin-bottom:var(--space-md);text-align:center">Each friend adds their own items. Order confirms once everyone's added their items.</div>
+            <button class="btn btn-primary w-full" id="create-group-btn">
+              <span class="material-symbols-rounded" style="font-size:1.125rem">add_circle</span>
+              Create Group Cart
+            </button>
+          </div>
+
+          <div id="group-share-section" class="hidden">
+            <div style="margin-bottom:var(--space-md)">
+              <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:8px">SHARE LINK</div>
+              <div style="display:flex;gap:8px">
+                <div class="input-field" id="group-link-display" style="font-size:0.8125rem;color:var(--text-secondary);cursor:text"></div>
+                <button class="btn btn-glass btn-icon" id="share-wa-btn" aria-label="Share on WhatsApp" style="flex-shrink:0;padding:10px 14px;border-radius:12px">
+                  <span class="material-symbols-rounded">share</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="group-participants" class="participant-list"></div>
+
+            <div class="divider"></div>
+
+            <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:var(--space-md)">
+              <span style="color:var(--text-secondary)">Group Total</span>
+              <span id="group-total" style="font-family:'Playfair Display',serif;font-weight:700;color:var(--gold)">₹0</span>
+            </div>
+
+            <button class="btn btn-primary w-full" id="confirm-group-btn" disabled>
+              <span class="material-symbols-rounded" style="font-size:1.125rem">check_circle</span>
+              Confirm Group Order
+            </button>
+          </div>
+        </div>
+
+        <!-- How it works -->
+        <div class="glass animate-fade-up stagger-1" style="padding:var(--space-lg)">
+          <div style="font-weight:700;margin-bottom:var(--space-md)">How Group Orders Work</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <span class="material-symbols-rounded" style="font-size:1.25rem;color:var(--gold);flex-shrink:0">add_link</span>
+              <div style="font-size:0.875rem;color:var(--text-secondary)">You create a group cart and share the link via WhatsApp</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <span class="material-symbols-rounded" style="font-size:1.25rem;color:var(--gold);flex-shrink:0">shopping_cart_checkout</span>
+              <div style="font-size:0.875rem;color:var(--text-secondary)">Friends join the link and add their items</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <span class="material-symbols-rounded" style="font-size:1.25rem;color:var(--gold);flex-shrink:0">done_all</span>
+              <div style="font-size:0.875rem;color:var(--text-secondary)">Everyone marks themselves "Ready" and the group order is confirmed</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <span class="material-symbols-rounded" style="font-size:1.25rem;color:var(--gold);flex-shrink:0">store</span>
+              <div style="font-size:0.875rem;color:var(--text-secondary)">Pick up together at the kiosk & pay individually at counter</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- ── Cart FAB ── -->
+    <button id="cart-fab" class="cart-fab hidden" aria-label="Open cart">
+      <span class="material-symbols-rounded" style="font-size:1.25rem">shopping_cart</span>
+      <span id="cart-fab-count">0 items</span>
+      <span style="opacity:0.5">·</span>
+      <span id="cart-fab-total">₹0</span>
+    </button>
+
+    <!-- ── Bottom Nav ── -->
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <div class="bottom-nav-inner">
+        <button class="nav-tab active" data-tab="home" aria-label="Home">
+          <span class="material-symbols-rounded nav-tab-icon">home</span>
+          <span class="nav-tab-label">Home</span>
+        </button>
+        <button class="nav-tab" data-tab="menu" aria-label="Menu">
+          <span class="material-symbols-rounded nav-tab-icon">local_cafe</span>
+          <span class="nav-tab-label">Menu</span>
+          <span id="cart-nav-badge" class="nav-badge hidden">0</span>
+        </button>
+        <button class="nav-tab" data-tab="orders" aria-label="My Orders">
+          <span class="material-symbols-rounded nav-tab-icon">inventory_2</span>
+          <span class="nav-tab-label">Orders</span>
+          <span id="orders-nav-badge" class="nav-badge hidden">0</span>
+        </button>
+        <button class="nav-tab" data-tab="loyalty" aria-label="Loyalty">
+          <span class="material-symbols-rounded nav-tab-icon">loyalty</span>
+          <span class="nav-tab-label">Loyalty</span>
+        </button>
+        <button class="nav-tab" data-tab="group" aria-label="Group Order">
+          <span class="material-symbols-rounded nav-tab-icon">group</span>
+          <span class="nav-tab-label">Group</span>
+        </button>
+      </div>
+    </nav>
+
+  </div><!-- /app-shell -->
+
+  <!-- ── Cart Overlay ── -->
+  <div id="cart-overlay" class="cart-overlay" role="dialog" aria-modal="true" aria-label="Your cart"></div>
+
+  <!-- ── Cart Drawer ── -->
+  <div id="cart-drawer" class="cart-drawer">
+    <div class="cart-handle"></div>
+
+    <div class="cart-header">
+      <div class="cart-title">Your Order</div>
+      <button id="cart-close" class="cart-close" aria-label="Close cart">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+
+    <div id="cart-body" class="cart-body">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="cart-footer">
+      <!-- Slot Picker -->
+      <div class="slot-picker-section">
+        <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+          <span class="material-symbols-rounded" style="font-size:1rem">schedule</span>
+          Pick your Slot
+        </div>
+        <div id="slot-grid" class="slot-grid"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Total -->
+      <div class="cart-total-row">
+        <span class="cart-total-label">Total Amount</span>
+        <span id="cart-total-amount" class="cart-total-amount">₹0</span>
+      </div>
+
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px">
+        <span class="material-symbols-rounded" style="font-size:1rem">store</span>
+        Pay at kiosk when you collect your order
+      </div>
+
+      <button id="place-order-btn" class="btn btn-primary w-full" style="font-size:1rem;padding:16px">
+        Place Order · Pay at Kiosk
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Profile Sheet ── -->
+  <div id="profile-sheet" class="profile-sheet" role="dialog" aria-modal="true" aria-label="Profile">
+    <div id="profile-overlay" class="profile-overlay"></div>
+    <div class="profile-content">
+      <div class="profile-handle"></div>
+
+      <span class="material-symbols-rounded" style="font-size:4rem;color:var(--gold);display:block;text-align:center;margin-bottom:8px">account_circle</span>
+      <div class="profile-name" id="profile-name-text">Loading...</div>
+      <div class="profile-email" id="profile-email-text"></div>
+
+      <div class="profile-stats">
+        <div class="profile-stat">
+          <span id="profile-orders-count" class="profile-stat-value">0</span>
+          <span class="profile-stat-label">Orders</span>
+        </div>
+        <div class="profile-stat">
+          <span id="profile-punches" class="profile-stat-value">0</span>
+          <span class="profile-stat-label">Punches</span>
+          <div style="font-size:0.65rem; color:var(--text-muted); margin-top:4px; text-transform:none;">(Buy 5, get 1 free Maggi)</div>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat-value">SRM</span>
+          <span class="profile-stat-label">Campus</span>
+        </div>
+      </div>
+
+      <button id="logout-btn" class="btn btn-danger w-full">
+        <span class="material-symbols-rounded" style="font-size:1.125rem">logout</span>
+        Sign Out
+      </button>
+      <button id="close-profile" class="btn btn-glass w-full mt-sm">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <script type="module" src="js/home.js"></script>
+</body>
+</html>
