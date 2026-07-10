@@ -171,6 +171,22 @@
   opacity: 1;
 }
 
+/* ── Owner field visibility ── */
+.owner-field-container {
+  transition: all var(--duration-mid) var(--ease-smooth);
+  overflow: hidden;
+}
+.owner-field-container.hidden-field {
+  max-height: 0;
+  opacity: 0;
+  margin: 0 !important;
+  pointer-events: none;
+}
+.owner-field-container.visible-field {
+  max-height: 50px;
+  opacity: 1;
+}
+
 /* ── Submit Button ── */
 .auth-submit {
   width: 100%;
