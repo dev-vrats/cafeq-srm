@@ -15,7 +15,16 @@ let allOrders    = [];
 let filterStatus = 'active';
 let rushLevel    = 'relaxed';
 let kioskOpen    = true;
-let knownOrderIds = new Set();
+
+// Persist known order IDs across soft reloads in sessionStorage
+// so reconnects don't re-fire notifications for old orders
+const SESSION_KEY = 'cafeq_known_orders';
+const knownOrderIds = new Set(
+  JSON.parse(sessionStorage.getItem(SESSION_KEY) || '[]')
+);
+function persistKnownIds() {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify([...knownOrderIds]));
+}
 
 const $ = id => document.getElementById(id);
 
@@ -81,15 +90,19 @@ function updateKioskDot() {
 
 // ── Order Listener ──
 function setupOrderListener() {
+  let firstLoad = true;
   listenToAllOrders(orders => {
-    // Detect new orders (for notification ping)
     orders.forEach(o => {
-      if (!knownOrderIds.has(o.id) && knownOrderIds.size > 0) {
+      // Only notify for BRAND NEW orders (status === 'placed') not previously seen
+      // This prevents re-notification on page reload or status updates
+      if (!knownOrderIds.has(o.id) && !firstLoad && o.status === 'placed') {
         playNotification();
         showToast(`🔔 New order from ${o.userName}!`, 'info');
       }
       knownOrderIds.add(o.id);
     });
+    persistKnownIds();
+    firstLoad = false;
 
     allOrders = orders;
     renderOrders();
@@ -113,7 +126,7 @@ function setupFilters() {
   });
 }
 
-// ── Render Orders ──
+// ── Render Orders (diff-render to prevent flicker) ──
 function renderOrders() {
   const feed = $('orders-feed');
   if (!feed) return;
@@ -129,7 +142,7 @@ function renderOrders() {
 
   // Update active count badge
   const activeCount = allOrders.filter(o => !['completed','cancelled'].includes(o.status)).length;
-  const countBadge = document.getElementById('active-orders-count');
+  const countBadge = $('active-orders-count');
   if (countBadge) countBadge.textContent = `${activeCount} active`;
 
   if (filtered.length === 0) {
@@ -140,11 +153,45 @@ function renderOrders() {
     return;
   }
 
-  feed.innerHTML = '';
+  // Remove empty-state if present
+  const emptyState = feed.querySelector('.orders-empty');
+  if (emptyState) emptyState.remove();
+
+  // Build lookup of existing cards
+  const existingCards = new Map();
+  feed.querySelectorAll('[data-order-id]').forEach(el => {
+    existingCards.set(el.dataset.orderId, el);
+  });
+
+  const renderedIds = new Set();
+
   filtered.forEach((order, i) => {
-    const card = buildOwnerOrderCard(order);
-    card.style.animationDelay = `${i * 40}ms`;
-    feed.appendChild(card);
+    renderedIds.add(order.id);
+    const existing = existingCards.get(order.id);
+
+    if (existing) {
+      // Only re-render if status actually changed (avoids flash)
+      if (existing.dataset.status !== order.status) {
+        const card = buildOwnerOrderCard(order);
+        feed.insertBefore(card, existing);
+        existing.remove();
+      }
+      // Else leave it alone — no flicker
+    } else {
+      // New card — insert at correct position
+      const card = buildOwnerOrderCard(order);
+      const allCards = [...feed.children];
+      if (allCards[i]) {
+        feed.insertBefore(card, allCards[i]);
+      } else {
+        feed.appendChild(card);
+      }
+    }
+  });
+
+  // Remove stale cards no longer in filtered
+  existingCards.forEach((el, id) => {
+    if (!renderedIds.has(id)) el.remove();
   });
 }
 

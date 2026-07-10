@@ -224,59 +224,92 @@ function renderCategories() {
 function renderMenuItems(category) {
   const grid = $('menu-grid');
   if (!grid) return;
-  grid.innerHTML = '';
+
   const items = getItemsByCategory(category);
+  const existingCards = new Map();
+  grid.querySelectorAll('[data-item-id]').forEach(el => {
+    existingCards.set(el.dataset.itemId, el);
+  });
+
+  // If category changed (different set of items), do a full reset once
+  const currentIds = new Set([...existingCards.keys()]);
+  const newIds = new Set(items.map(i => i.id));
+  const categoryChanged = currentIds.size !== newIds.size ||
+    ![...currentIds].every(id => newIds.has(id));
+
+  if (categoryChanged) {
+    grid.innerHTML = '';
+    existingCards.clear();
+  }
+
   items.forEach((item, i) => {
     const qtyInCart = cart[item.id]?.qty || 0;
-    const card = document.createElement('div');
-    card.className = `glass-card menu-item-card animate-fade-up stagger-${(i % 5) + 1}`;
-    card.dataset.itemId = item.id;
+    const existing = existingCards.get(item.id);
 
-    // Image: use <img> if path exists, else placeholder with emoji
-    const imgHtml = item.image
-      ? `<img src="${item.image}" alt="${item.name}" class="menu-item-img" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-         <div class="menu-item-img-placeholder" style="display:none"><span class="material-symbols-rounded">${item.icon}</span></div>`
-      : `<div class="menu-item-img-placeholder"><span class="material-symbols-rounded">${item.icon}</span></div>`;
-
-    card.innerHTML = `
-      ${item.isPopular ? `<span class="badge badge-gold popular-badge" style="display:flex;align-items:center;gap:3px"><span class="material-symbols-rounded" style="font-size:0.75rem">local_fire_department</span> Popular</span>` : ''}
-      ${imgHtml}
-      <div class="menu-item-name">${item.name}</div>
-      <div class="menu-item-desc">${item.description}</div>
-      <div class="menu-item-footer">
-        <span class="menu-item-price">&#8377;${item.price}</span>
-        ${qtyInCart > 0
-          ? `<div class="qty-controls">
-              <button class="qty-btn" data-action="dec" data-id="${item.id}"><span class="material-symbols-rounded" style="font-size:1rem">remove</span></button>
-              <span class="qty-num">${qtyInCart}</span>
-              <button class="qty-btn" data-action="inc" data-id="${item.id}"><span class="material-symbols-rounded" style="font-size:1rem">add</span></button>
-            </div>`
-          : `<button class="add-btn" data-id="${item.id}"><span class="material-symbols-rounded" style="font-size:1.125rem;pointer-events:none">add</span></button>`
+    if (existing && !categoryChanged) {
+      // Surgical update: only swap the qty controls, no full re-render
+      const footer = existing.querySelector('.menu-item-footer');
+      if (footer) {
+        const qtyEl = footer.querySelector('.qty-controls, .add-btn');
+        if (qtyEl) {
+          const newQtyHtml = qtyInCart > 0
+            ? `<div class="qty-controls">
+                <button class="qty-btn" data-action="dec" data-id="${item.id}"><span class="material-symbols-rounded" style="font-size:1rem">remove</span></button>
+                <span class="qty-num">${qtyInCart}</span>
+                <button class="qty-btn" data-action="inc" data-id="${item.id}"><span class="material-symbols-rounded" style="font-size:1rem">add</span></button>
+              </div>`
+            : `<button class="add-btn" data-id="${item.id}"><span class="material-symbols-rounded" style="font-size:1.125rem;pointer-events:none">add</span></button>`;
+          qtyEl.outerHTML = newQtyHtml;
         }
-      </div>`;
-    grid.appendChild(card);
-  });
+        // Re-bind events on the updated footer
+        bindCardEvents(existing, item, category);
+      }
+    } else {
+      // Build new card
+      const card = document.createElement('div');
+      card.className = `glass-card menu-item-card animate-fade-up stagger-${(i % 5) + 1}`;
+      card.dataset.itemId = item.id;
 
-  // Bind events — use closest to handle icon child clicks
-  grid.querySelectorAll('.add-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const id = btn.dataset.id;
-      const item = getItemById(id);
-      if (item) { addToCart(item); renderMenuItems(category); updateCartFAB(); }
-    });
+      const imgHtml = item.image
+        ? `<img src="${item.image}" alt="${item.name}" class="menu-item-img" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+           <div class="menu-item-img-placeholder" style="display:none"><span class="material-symbols-rounded">${item.icon}</span></div>`
+        : `<div class="menu-item-img-placeholder"><span class="material-symbols-rounded">${item.icon}</span></div>`;
+
+      card.innerHTML = `
+        ${item.isPopular ? `<span class="badge badge-gold popular-badge" style="display:flex;align-items:center;gap:3px"><span class="material-symbols-rounded" style="font-size:0.75rem">local_fire_department</span> Popular</span>` : ''}
+        ${imgHtml}
+        <div class="menu-item-name">${item.name}</div>
+        <div class="menu-item-desc">${item.description}</div>
+        <div class="menu-item-footer">
+          <span class="menu-item-price">&#8377;${item.price}</span>
+          ${qtyInCart > 0
+            ? `<div class="qty-controls">
+                <button class="qty-btn" data-action="dec" data-id="${item.id}"><span class="material-symbols-rounded" style="font-size:1rem">remove</span></button>
+                <span class="qty-num">${qtyInCart}</span>
+                <button class="qty-btn" data-action="inc" data-id="${item.id}"><span class="material-symbols-rounded" style="font-size:1rem">add</span></button>
+              </div>`
+            : `<button class="add-btn" data-id="${item.id}"><span class="material-symbols-rounded" style="font-size:1.125rem;pointer-events:none">add</span></button>`
+          }
+        </div>`;
+      bindCardEvents(card, item, category);
+      grid.appendChild(card);
+    }
   });
-  grid.querySelectorAll('.qty-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const { action, id } = btn.dataset;
-      const item = getItemById(id);
-      if (!item) return;
-      if (action === 'inc') addToCart(item);
+}
+
+function bindCardEvents(card, item, category) {
+  card.querySelector('.add-btn')?.addEventListener('click', () => {
+    addToCart(item); renderMenuItems(category); updateCartFAB();
+  });
+  card.querySelectorAll('.qty-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.action === 'inc') addToCart(item);
       else removeFromCart(item.id);
-      renderMenuItems(category);
-      updateCartFAB();
+      renderMenuItems(category); updateCartFAB();
     });
   });
 }
+
 
 // ── Cart ──
 function addToCart(item) {
