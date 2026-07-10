@@ -28,9 +28,11 @@ const errorMsg    = document.getElementById('error-msg');
 
 let isLogin = true;
 
+let isAuthHandling = false;
+
 // ── Auto-redirect if already logged in ──
 onAuthStateChanged(auth, async user => {
-  if (user) {
+  if (user && !isAuthHandling) {
     const profile = await getUserProfile(user.uid);
     if (profile?.role === 'owner') {
       window.location.replace('owner.html');
@@ -102,6 +104,7 @@ async function handleAuth() {
 
   setLoading(true);
 
+  isAuthHandling = true;
   try {
     if (isLogin) {
       const cred = await signInWithEmailAndPassword(auth, email, pass);
@@ -120,6 +123,7 @@ async function handleAuth() {
         if (ownerExists) {
           showError('An owner is already registered.');
           setLoading(false);
+          isAuthHandling = false;
           return;
         }
         finalRole = 'owner';
@@ -136,6 +140,7 @@ async function handleAuth() {
     }
   } catch (err) {
     setLoading(false);
+    isAuthHandling = false;
     showError(friendlyError(err.code));
   }
 }
