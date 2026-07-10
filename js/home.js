@@ -92,18 +92,22 @@ function switchTab(tab) {
 
 // ── Kiosk Listener ──
 function setupKioskListener() {
+  let firstLoad = true;
   const unsub = listenToKioskStatus(status => {
+    const prevLevel = rushLevel;
     rushLevel = status.rushLevel || 'relaxed';
     kioskOpen = status.isOpen !== false;
-    updateRushUI();
+    const changed = !firstLoad && prevLevel !== rushLevel;
+    updateRushUI(changed);
+    if (changed) showToast(`📡 Rush level updated: ${rushLevel.replace('_', ' ')}`, 'info');
+    firstLoad = false;
   }, err => {
     console.error("Kiosk listener error:", err);
-    showToast(`⚠️ Kiosk connection failed: ${err.message}`, 'error');
   });
   unsubscribers.push(unsub);
 }
 
-function updateRushUI() {
+function updateRushUI(changed) {
   const rushCard = $('rush-level-badge');
   const rushFill = $('rush-fill');
   const rushTip  = $('rush-tip');
@@ -121,6 +125,12 @@ function updateRushUI() {
   rushFill.className = `rush-fill ${rushLevel}`;
   rushFill.style.width = c.width;
   if (rushTip) rushTip.textContent = c.tip;
+
+  // Pulse animation on live change
+  if (changed) {
+    rushCard.classList.add('rush-changed');
+    setTimeout(() => rushCard.classList.remove('rush-changed'), 800);
+  }
 }
 
 // ── Home Tab ──
@@ -463,36 +473,130 @@ function renderOrders() {
   const container = $('orders-list');
   if (!container) return;
 
-  const activeOnes = activeOrders.filter(o => o.status !== 'completed');
+  const activeOnes = activeOrders.filter(o => !['completed', 'cancelled'].includes(o.status));
   const pastOnes   = activeOrders.filter(o => o.status === 'completed').slice(0, 5);
 
   if (activeOrders.length === 0) {
     container.innerHTML = `<div class="empty-state">
-      <span class="material-symbols-rounded empty-state-emoji">inventory_2</span>
+      <span class="material-symbols-rounded empty-state-emoji" style="font-size:3.5rem;color:var(--text-muted)">local_cafe</span>
       <div class="empty-state-title">No orders yet</div>
-      <div class="empty-state-sub">Head to the menu and place your first order!</div>
+      <div class="empty-state-sub">Browse the menu and place your first order — it'll appear here instantly! ☕</div>
     </div>`;
     return;
   }
 
-  container.innerHTML = '';
-
-  activeOnes.forEach(order => {
-    container.appendChild(buildOrderCard(order, false));
+  // Smart diff-render: update existing cards, add new ones, remove stale ones
+  const existingCards = new Map();
+  container.querySelectorAll('[data-order-id]').forEach(el => {
+    existingCards.set(el.dataset.orderId, el);
   });
 
+  const renderedIds = new Set();
+
+  // Render active orders first
+  activeOnes.forEach((order, idx) => {
+    renderedIds.add(order.id);
+    const existing = existingCards.get(order.id);
+    const card = buildOrderCard(order, false);
+    if (existing) {
+      // Only replace if status changed (avoid destroying game mid-play)
+      if (existing.dataset.status !== order.status) {
+        container.insertBefore(card, existing);
+        existing.remove();
+      }
+    } else {
+      // Insert at correct position
+      const allCards = [...container.children];
+      const insertIdx = idx;
+      if (allCards[insertIdx]) {
+        container.insertBefore(card, allCards[insertIdx]);
+      } else {
+        container.appendChild(card);
+      }
+    }
+  });
+
+  // Render separator + past orders
+  const oldSep = container.querySelector('.past-orders-sep');
   if (pastOnes.length > 0) {
-    const sep = document.createElement('div');
-    sep.innerHTML = '<div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin:16px 0 8px">Past Orders</div>';
-    container.appendChild(sep);
-    pastOnes.forEach(order => container.appendChild(buildOrderCard(order, true)));
+    if (!oldSep) {
+      const sep = document.createElement('div');
+      sep.className = 'past-orders-sep';
+      sep.innerHTML = '<div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin:16px 0 8px;display:flex;align-items:center;gap:8px"><span class="material-symbols-rounded" style="font-size:1rem">history</span>Past Orders</div>';
+      container.appendChild(sep);
+    }
+    pastOnes.forEach(order => {
+      renderedIds.add(order.id);
+      const existing = existingCards.get(order.id);
+      if (!existing) {
+        container.appendChild(buildOrderCard(order, true));
+      } else if (existing.dataset.status !== order.status) {
+        container.insertBefore(buildOrderCard(order, true), existing);
+        existing.remove();
+      }
+    });
+  } else if (oldSep) {
+    oldSep.remove();
   }
+
+  // Remove stale cards
+  existingCards.forEach((el, id) => {
+    if (!renderedIds.has(id)) el.remove();
+  });
+}
+
+// ── Mini Coffee Clicker Game ──
+const gameState = {}; // keyed by orderId
+
+function buildCoffeeClickerGame(orderId) {
+  const key = orderId;
+  if (!gameState[key]) gameState[key] = { clicks: 0, goal: 15, done: false };
+  const gs = gameState[key];
+
+  const wrap = document.createElement('div');
+  wrap.className = 'coffee-game';
+  wrap.dataset.gameId = key;
+
+  const render = () => {
+    const pct = Math.min(100, (gs.clicks / gs.goal) * 100);
+    wrap.innerHTML = `
+      <div class="coffee-game-header">
+        <span class="material-symbols-rounded" style="font-size:1rem;color:var(--gold)">sports_esports</span>
+        <span style="font-size:0.75rem;font-weight:700;color:var(--gold)">While you wait…</span>
+      </div>
+      <div style="font-size:0.8125rem;color:var(--text-secondary);margin-bottom:10px;text-align:center">
+        ${gs.done ? '☕ Perfect brew! Your coffee is almost ready!' : 'Tap the ☕ to brew your coffee perfectly!'}
+      </div>
+      <div style="text-align:center;margin-bottom:10px">
+        <button id="brew-btn-${key}" class="brew-btn ${gs.done ? 'done' : ''}" ${gs.done ? 'disabled' : ''}>☕</button>
+      </div>
+      <div class="brew-progress-bg">
+        <div class="brew-progress-fill" style="width:${pct}%"></div>
+      </div>
+      <div style="font-size:0.6875rem;color:var(--text-muted);text-align:center;margin-top:6px">
+        ${gs.done ? '🏆 Brew master! ' : `${gs.clicks}/${gs.goal} taps`}
+      </div>`;
+
+    if (!gs.done) {
+      wrap.querySelector(`#brew-btn-${key}`)?.addEventListener('click', () => {
+        gs.clicks = Math.min(gs.goal, gs.clicks + 1);
+        if (gs.clicks >= gs.goal) gs.done = true;
+        render();
+        if (gs.done) showToast('🏆 Brew Master! You\'re a coffee expert!', 'success');
+      });
+    }
+  };
+
+  render();
+  return wrap;
 }
 
 function buildOrderCard(order, isPast) {
   const card = document.createElement('div');
-  card.className = 'glass-card animate-fade-up';
+  card.className = 'glass-card order-card';
   card.style.padding = 'var(--space-lg)';
+  card.dataset.orderId = order.id;
+  card.dataset.status = order.status || 'placed';
 
   const steps = [
     { key: 'placed',    label: 'Placed',    icon: 'schedule' },
@@ -509,7 +613,7 @@ function buildOrderCard(order, isPast) {
     const isCompleted = i < currentIdx || orderStatus === 'completed';
     const cls = isActive ? 'active' : isCompleted ? 'completed' : '';
     return `<div class="pipeline-step ${cls}">
-      <div class="pipeline-icon"><span class="material-symbols-rounded" style="font-size:1.25rem">${isCompleted ? 'check' : step.icon}</span></div>
+      <div class="pipeline-icon"><span class="material-symbols-rounded" style="font-size:1.125rem">${isCompleted ? 'check' : step.icon}</span></div>
       <div class="pipeline-label">${step.label}</div>
     </div>`;
   }).join('');
@@ -517,41 +621,62 @@ function buildOrderCard(order, isPast) {
   const itemsList = order.items || [];
   const itemsHtml = itemsList.map(i => `
     <div class="order-item-line">
-      <span><span class="material-symbols-rounded" style="font-size:1rem;vertical-align:middle;margin-right:4px">${i.icon || 'local_cafe'}</span> ${i.name || 'Coffee'} × ${i.qty || 1}</span>
-      <span>₹${(i.price || 0) * (i.qty || 1)}</span>
+      <span><span class="material-symbols-rounded" style="font-size:1rem;vertical-align:middle;margin-right:4px">${i.icon || 'local_cafe'}</span> ${i.name || 'Coffee'} ×${i.qty || 1}</span>
+      <span style="color:var(--text-primary);font-weight:600">₹${(i.price || 0) * (i.qty || 1)}</span>
     </div>`).join('');
 
   const statusLabel = {
-    placed: '⏳ Order Placed',
-    accepted: '🔵 Accepted',
-    preparing: '🔄 Being Prepared',
-    ready: '✅ Ready for Pickup!',
-    completed: '✓ Completed',
-  }[orderStatus] || orderStatus;
+    placed:    '<span class="status-chip chip-yellow">⏳ Placed</span>',
+    accepted:  '<span class="status-chip chip-blue">🔵 Accepted</span>',
+    preparing: '<span class="status-chip chip-blue chip-pulse">🔄 Preparing</span>',
+    ready:     '<span class="status-chip chip-green chip-pulse">✅ Ready!</span>',
+    completed: '<span class="status-chip chip-done">✓ Done</span>',
+  }[orderStatus] || `<span class="status-chip chip-yellow">${orderStatus}</span>`;
 
   const orderIdText = order.id ? order.id.slice(-6).toUpperCase() : '------';
+  const timeText = order.createdAt?.toDate ? 
+    order.createdAt.toDate().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '';
 
   card.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
       <div>
-        <div style="font-weight:700;font-size:0.9375rem">Order #${orderIdText}</div>
-        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">
-          ${order.slot ? `⏰ Pickup: ${order.slot.label}` : ''}
+        <div style="font-weight:700;font-size:1rem;letter-spacing:0.03em">Order #${orderIdText}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;display:flex;align-items:center;gap:6px">
+          ${timeText ? `<span class="material-symbols-rounded" style="font-size:0.875rem">schedule</span>${timeText}` : ''}
+          ${order.slot ? `· ⏰ ${order.slot.label}` : ''}
         </div>
       </div>
-      <span class="badge ${orderStatus === 'ready' ? 'badge-green' : orderStatus === 'preparing' ? 'badge-blue' : orderStatus === 'completed' ? 'badge-green' : 'badge-yellow'}">${statusLabel}</span>
+      <div>${statusLabel}</div>
     </div>
-    ${!isPast ? `<div class="order-pipeline" style="margin-bottom:20px">${pipeline}</div>` : ''}
+    ${!isPast ? `<div class="order-pipeline" style="margin-bottom:16px">${pipeline}</div>` : ''}
     <div class="order-items-summary">${itemsHtml}
-      <div class="order-item-line" style="border-top:1px solid var(--glass-border);margin-top:8px;padding-top:8px;font-weight:700">
-        <span>Total</span><span style="color:var(--gold)">₹${order.totalAmount || 0}</span>
+      <div class="order-item-line" style="border-top:1px solid var(--glass-border);margin-top:8px;padding-top:8px;font-weight:700;color:var(--text-primary)">
+        <span>Total</span><span style="color:var(--gold);font-family:'Playfair Display',serif">₹${order.totalAmount || 0}</span>
       </div>
     </div>
     ${orderStatus === 'ready' ? `
-      <div style="margin-top:16px;padding:12px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);border-radius:12px;text-align:center">
-        <div style="font-weight:700;color:var(--status-green);margin-bottom:2px">🎉 Your order is Ready!</div>
-        <div style="font-size:0.8125rem;color:var(--text-secondary)">Please pick it up at the Nescafé kiosk & pay there</div>
-      </div>` : ''}`;
+      <div class="order-ready-banner">
+        <span class="material-symbols-rounded" style="font-size:1.25rem;flex-shrink:0">celebration</span>
+        <div>
+          <div style="font-weight:700">Your order is ready! 🎉</div>
+          <div style="font-size:0.8125rem;opacity:0.85">Head to the Nescafé kiosk &amp; pay at counter</div>
+        </div>
+      </div>` : ''}
+    ${orderStatus === 'completed' && isPast ? `
+      <div style="margin-top:12px;text-align:center;font-size:0.75rem;color:var(--text-muted)">
+        <span class="material-symbols-rounded" style="font-size:1rem;vertical-align:middle">check_circle</span>
+        Collected &amp; paid ✓
+      </div>` : ''}
+    <div id="game-slot-${order.id}"></div>`;
+
+  // Inject game for preparing orders
+  if (orderStatus === 'preparing' && !isPast) {
+    const gameSlot = card.querySelector(`#game-slot-${order.id}`);
+    if (gameSlot) {
+      gameSlot.style.marginTop = '14px';
+      gameSlot.appendChild(buildCoffeeClickerGame(order.id));
+    }
+  }
 
   return card;
 }
