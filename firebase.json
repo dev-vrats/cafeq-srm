@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "cafeq-srm-v2",
     "public": ".",
     "ignore": [
       "firebase.json",
