@@ -26,7 +26,8 @@ import {
   increment,
   getDocs,
   limit,
-  Timestamp
+  Timestamp,
+  arrayRemove
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -46,7 +47,7 @@ export const db   = getFirestore(app);
 export {
   doc, setDoc, getDoc, updateDoc, addDoc,
   collection, onSnapshot, query, where, orderBy,
-  serverTimestamp, increment, getDocs, limit, Timestamp,
+  serverTimestamp, increment, getDocs, limit, Timestamp, arrayRemove,
   createUserWithEmailAndPassword, signInWithEmailAndPassword,
   signOut, onAuthStateChanged
 };
@@ -62,10 +63,11 @@ export async function createUserProfile(uid, name, email, role = 'student') {
   });
 }
 
-export async function checkIfOwnerExists() {
+// Check if an owner exists and return their UID
+export async function getOwnerId() {
   const q = query(collection(db, 'users'), where('role', '==', 'owner'), limit(1));
   const snap = await getDocs(q);
-  return !snap.empty;
+  return snap.empty ? null : snap.docs[0].id;
 }
 
 export async function getUserProfile(uid) {
