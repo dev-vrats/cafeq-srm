@@ -8,7 +8,8 @@ import {
   onAuthStateChanged,
   createUserProfile,
   getUserProfile,
-  checkIfOwnerExists
+  checkIfOwnerExists,
+  doc, updateDoc
 } from './firebase.js';
 
 // ── DOM refs ──
@@ -106,7 +107,17 @@ async function handleAuth() {
   try {
     if (isLogin) {
       const cred = await signInWithEmailAndPassword(auth, email, pass);
-      const profile = await getUserProfile(cred.user.uid);
+      let profile = await getUserProfile(cred.user.uid);
+      
+      // AUTO-UPGRADE LOGIC: if no owner exists, the first person to sign in gets upgraded!
+      if (profile?.role !== 'owner') {
+        const ownerExists = await checkIfOwnerExists();
+        if (!ownerExists) {
+          await updateDoc(doc(db, 'users', cred.user.uid), { role: 'owner' });
+          profile.role = 'owner';
+        }
+      }
+
       if (profile?.role === 'owner') {
         window.location.replace('owner.html');
       } else {
