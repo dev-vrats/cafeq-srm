@@ -66,6 +66,9 @@ function setupKioskControls() {
     document.querySelectorAll('.rush-sel-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.level === rushLevel);
     });
+  }, err => {
+    console.error("Kiosk status listener failed:", err);
+    showToast(`⚠️ Kiosk status sync failed: ${err.message}`, 'error');
   });
 }
 
@@ -92,6 +95,9 @@ function setupOrderListener() {
     renderOrders();
     updateStats();
     renderSlotsTimeline();
+  }, err => {
+    console.error("Orders listener failed:", err);
+    showToast(`⚠️ Orders dashboard sync failed: ${err.message}`, 'error');
   });
 }
 

@@ -96,6 +96,9 @@ function setupKioskListener() {
     rushLevel = status.rushLevel || 'relaxed';
     kioskOpen = status.isOpen !== false;
     updateRushUI();
+  }, err => {
+    console.error("Kiosk listener error:", err);
+    showToast(`⚠️ Kiosk connection failed: ${err.message}`, 'error');
   });
   unsubscribers.push(unsub);
 }
@@ -440,6 +443,9 @@ function setupOrdersListener() {
     activeOrders = orders;
     if (activeTab === 'orders') renderOrders();
     updateOrdersBadge();
+  }, err => {
+    console.error("Orders listener error:", err);
+    showToast(`⚠️ Orders sync failed: ${err.message}`, 'error');
   });
   unsubscribers.push(unsub);
 }
@@ -494,12 +500,13 @@ function buildOrderCard(order, isPast) {
     { key: 'ready',     label: 'Ready!',    icon: 'check_circle' },
   ];
 
+  const orderStatus = order.status || 'placed';
   const statusIdx = { placed: 0, accepted: 0, preparing: 1, ready: 2, completed: 2 };
-  const currentIdx = statusIdx[order.status] ?? 0;
+  const currentIdx = statusIdx[orderStatus] ?? 0;
 
   const pipeline = steps.map((step, i) => {
-    const isActive    = i === currentIdx && order.status !== 'completed';
-    const isCompleted = i < currentIdx || order.status === 'completed';
+    const isActive    = i === currentIdx && orderStatus !== 'completed';
+    const isCompleted = i < currentIdx || orderStatus === 'completed';
     const cls = isActive ? 'active' : isCompleted ? 'completed' : '';
     return `<div class="pipeline-step ${cls}">
       <div class="pipeline-icon"><span class="material-symbols-rounded" style="font-size:1.25rem">${isCompleted ? 'check' : step.icon}</span></div>
@@ -507,10 +514,11 @@ function buildOrderCard(order, isPast) {
     </div>`;
   }).join('');
 
-  const itemsHtml = order.items.map(i => `
+  const itemsList = order.items || [];
+  const itemsHtml = itemsList.map(i => `
     <div class="order-item-line">
-      <span><span class="material-symbols-rounded" style="font-size:1rem;vertical-align:middle;margin-right:4px">${i.icon || 'local_cafe'}</span> ${i.name} × ${i.qty}</span>
-      <span>₹${i.price * i.qty}</span>
+      <span><span class="material-symbols-rounded" style="font-size:1rem;vertical-align:middle;margin-right:4px">${i.icon || 'local_cafe'}</span> ${i.name || 'Coffee'} × ${i.qty || 1}</span>
+      <span>₹${(i.price || 0) * (i.qty || 1)}</span>
     </div>`).join('');
 
   const statusLabel = {
@@ -519,25 +527,27 @@ function buildOrderCard(order, isPast) {
     preparing: '🔄 Being Prepared',
     ready: '✅ Ready for Pickup!',
     completed: '✓ Completed',
-  }[order.status] || order.status;
+  }[orderStatus] || orderStatus;
+
+  const orderIdText = order.id ? order.id.slice(-6).toUpperCase() : '------';
 
   card.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
       <div>
-        <div style="font-weight:700;font-size:0.9375rem">Order #${order.id.slice(-6).toUpperCase()}</div>
+        <div style="font-weight:700;font-size:0.9375rem">Order #${orderIdText}</div>
         <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">
           ${order.slot ? `⏰ Pickup: ${order.slot.label}` : ''}
         </div>
       </div>
-      <span class="badge ${order.status === 'ready' ? 'badge-green' : order.status === 'preparing' ? 'badge-blue' : order.status === 'completed' ? 'badge-green' : 'badge-yellow'}">${statusLabel}</span>
+      <span class="badge ${orderStatus === 'ready' ? 'badge-green' : orderStatus === 'preparing' ? 'badge-blue' : orderStatus === 'completed' ? 'badge-green' : 'badge-yellow'}">${statusLabel}</span>
     </div>
     ${!isPast ? `<div class="order-pipeline" style="margin-bottom:20px">${pipeline}</div>` : ''}
     <div class="order-items-summary">${itemsHtml}
       <div class="order-item-line" style="border-top:1px solid var(--glass-border);margin-top:8px;padding-top:8px;font-weight:700">
-        <span>Total</span><span style="color:var(--gold)">₹${order.totalAmount}</span>
+        <span>Total</span><span style="color:var(--gold)">₹${order.totalAmount || 0}</span>
       </div>
     </div>
-    ${order.status === 'ready' ? `
+    ${orderStatus === 'ready' ? `
       <div style="margin-top:16px;padding:12px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);border-radius:12px;text-align:center">
         <div style="font-weight:700;color:var(--status-green);margin-bottom:2px">🎉 Your order is Ready!</div>
         <div style="font-size:0.8125rem;color:var(--text-secondary)">Please pick it up at the Nescafé kiosk & pay there</div>

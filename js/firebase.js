@@ -90,32 +90,52 @@ export async function placeOrder(orderData) {
 }
 
 export function listenToOrder(orderId, callback) {
-  return onSnapshot(doc(db, 'orders', orderId), snap => {
-    callback(snap.exists() ? { id: snap.id, ...snap.data() } : null);
-  });
+  return onSnapshot(
+    doc(db, 'orders', orderId), 
+    snap => {
+      callback(snap.exists() ? { id: snap.id, ...snap.data() } : null);
+    },
+    err => {
+      console.error("listenToOrder failed:", err);
+    }
+  );
 }
 
-export function listenToUserOrders(userId, callback) {
+export function listenToUserOrders(userId, callback, errorCallback) {
   const q = query(
     collection(db, 'orders'),
     where('userId', '==', userId)
   );
-  return onSnapshot(q, snap => {
-    const orders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    callback(orders);
-  });
+  return onSnapshot(
+    q, 
+    snap => {
+      const orders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      callback(orders);
+    },
+    err => {
+      console.error("listenToUserOrders failed:", err);
+      if (errorCallback) errorCallback(err);
+    }
+  );
 }
 
-export function listenToAllOrders(callback) {
+export function listenToAllOrders(callback, errorCallback) {
   const q = query(
     collection(db, 'orders'),
     orderBy('createdAt', 'desc'),
     limit(50)
   );
-  return onSnapshot(q, snap => {
-    const orders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    callback(orders);
-  });
+  return onSnapshot(
+    q, 
+    snap => {
+      const orders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      callback(orders);
+    },
+    err => {
+      console.error("listenToAllOrders failed:", err);
+      if (errorCallback) errorCallback(err);
+    }
+  );
 }
 
 export async function updateOrderStatus(orderId, status) {
@@ -123,10 +143,17 @@ export async function updateOrderStatus(orderId, status) {
 }
 
 // ── Kiosk Status ──
-export function listenToKioskStatus(callback) {
-  return onSnapshot(doc(db, 'kiosk_status', 'main'), snap => {
-    callback(snap.exists() ? snap.data() : { rushLevel: 'relaxed', isOpen: true });
-  });
+export function listenToKioskStatus(callback, errorCallback) {
+  return onSnapshot(
+    doc(db, 'kiosk_status', 'main'), 
+    snap => {
+      callback(snap.exists() ? snap.data() : { rushLevel: 'relaxed', isOpen: true });
+    },
+    err => {
+      console.error("listenToKioskStatus failed:", err);
+      if (errorCallback) errorCallback(err);
+    }
+  );
 }
 
 export async function updateKioskStatus(data) {
