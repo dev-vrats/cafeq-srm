@@ -55,8 +55,7 @@ function switchMode(toLogin) {
     nameField.classList.remove('visible-field');
     nameField.classList.add('hidden-field');
     if (ownerField) {
-      ownerField.classList.remove('visible-field');
-      ownerField.classList.add('hidden-field');
+      ownerField.style.display = 'none';
     }
     cardTitle.textContent = 'Welcome back';
     cardSub.textContent = 'Sign in to your CaféQ account';
@@ -65,8 +64,7 @@ function switchMode(toLogin) {
     nameField.classList.remove('hidden-field');
     nameField.classList.add('visible-field');
     if (ownerField) {
-      ownerField.classList.remove('hidden-field');
-      ownerField.classList.add('visible-field');
+      ownerField.style.display = 'flex';
     }
     cardTitle.textContent = 'Join CaféQ';
     cardSub.textContent = 'Create your account & start ordering';
