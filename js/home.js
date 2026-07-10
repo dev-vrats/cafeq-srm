@@ -114,9 +114,9 @@ function updateRushUI(changed) {
   if (!rushCard) return;
 
   const config = {
-    relaxed:     { label: '🟢 Relaxed', width: '30%', tip: 'Kiosk is chill right now. Perfect time to grab your order!' },
-    busy:        { label: '🟡 Busy', width: '65%', tip: 'Moderate rush at the kiosk. Expect ~5-10 min wait.' },
-    super_jammed:{ label: '🔴 Super Jammed', width: '100%', tip: 'Very busy right now! Pre-order and pick up a later slot.' },
+    relaxed:     { label: 'Relaxed', width: '30%', tip: 'Chill right now ☕' },
+    busy:        { label: 'Busy', width: '65%', tip: '~5-10 min wait ⏱' },
+    super_jammed:{ label: 'Jammed', width: '100%', tip: 'Very busy! Pick a later slot 🔴' },
   };
 
   const c = config[rushLevel] || config.relaxed;

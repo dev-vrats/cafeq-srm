@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
   <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/home.css?v=11" />
+  <link rel="stylesheet" href="css/home.css?v=12" />
 </head>
 <body>
   <div class="bg-layer" aria-hidden="true"></div>
@@ -40,28 +40,27 @@
       <!-- ═══ HOME TAB ═══ -->
       <section id="tab-home" class="tab-panel active">
 
-        <!-- Rush Meter -->
+        <!-- Rush Meter (compact) -->
         <div class="glass rush-card animate-fade-up">
           <div class="rush-header">
-            <span class="rush-label">Live Rush Meter</span>
-            <div id="rush-level-badge" class="rush-level-badge relaxed">
-              <span class="rush-dot"></span>Relaxed
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="rush-label">Live Rush</span>
+              <div id="rush-level-badge" class="rush-level-badge relaxed">
+                <span class="rush-dot"></span>Relaxed
+              </div>
             </div>
+            <span id="rush-tip" style="font-size:0.75rem;color:var(--text-muted)">Chill right now ☕</span>
           </div>
-          <div class="rush-bar">
+          <div class="rush-bar" style="margin-top:10px">
             <div id="rush-fill" class="rush-fill relaxed" style="width:30%"></div>
           </div>
-          <p id="rush-tip" class="rush-tip">Kiosk is chill right now. Perfect time to grab your order!</p>
         </div>
 
         <!-- AI Suggestions -->
         <div class="glass-card ai-card animate-fade-up stagger-1">
           <div class="ai-header">
-            <span class="material-symbols-rounded ai-gem-icon" style="font-size:1.5rem;color:var(--gold)">auto_awesome</span>
-            <div>
-              <div class="heading-md">Smart Picks For You</div>
-              <div style="font-size:0.75rem;color:var(--text-secondary)">AI-powered suggestions based on your vibe</div>
-            </div>
+            <span class="material-symbols-rounded" style="font-size:1.25rem;color:var(--gold)">auto_awesome</span>
+            <div class="heading-sm" style="font-weight:700">Smart Picks</div>
           </div>
           <div id="ai-suggestions" class="ai-suggestion-list">
             <!-- Loaded by JS -->
@@ -77,16 +76,6 @@
           <div id="featured-combos" style="display:flex;gap:var(--space-md);overflow-x:auto;scrollbar-width:none;padding-bottom:4px;-webkit-overflow-scrolling:touch">
             <!-- Loaded by JS -->
           </div>
-        </div>
-
-        <!-- Quick CTA -->
-        <div class="glass animate-fade-up stagger-3" style="padding:var(--space-lg);text-align:center">
-          <span class="material-symbols-rounded" style="font-size:2.5rem;color:var(--gold);display:block;margin-bottom:8px">local_cafe</span>
-          <div style="font-family:'Playfair Display',serif;font-size:1.125rem;font-weight:700;margin-bottom:4px">Ready to order?</div>
-          <div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:var(--space-md)">Browse the full menu and pick your slot</div>
-          <button class="btn btn-primary w-full" onclick="document.querySelector('[data-tab=menu]').click()">
-            Browse Menu
-          </button>
         </div>
 
       </section>
