@@ -181,7 +181,7 @@ function renderFeaturedCombos() {
       <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:10px">${combo.description}</div>
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div>
-          <span style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--gold)">₹${combo.comboPrice}</span>
+          <span style="font-family:'DM Serif Display',serif;font-size:1rem;font-weight:700;color:var(--gold)">₹${combo.comboPrice}</span>
           <span style="font-size:0.7rem;color:var(--text-muted);text-decoration:line-through;margin-left:4px">₹${combo.originalPrice}</span>
         </div>
         <span class="badge badge-gold" style="font-size:0.55rem">${combo.tag}</span>
@@ -392,7 +392,7 @@ function renderCartDrawer() {
         <span class="qty-num">${item.qty}</span>
         <button class="qty-btn cart-inc" data-id="${item.id}"><span class="material-symbols-rounded" style="font-size:1rem">add</span></button>
       </div>
-      <span style="font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);min-width:48px;text-align:right">&#8377;${item.price * item.qty}</span>
+      <span style="font-family:'DM Serif Display',serif;font-weight:700;color:var(--gold);min-width:48px;text-align:right">&#8377;${item.price * item.qty}</span>
     </div>`).join('');
 
   body.querySelectorAll('.cart-inc').forEach(btn => {
@@ -684,7 +684,7 @@ function buildOrderCard(order, isPast) {
     ${!isPast ? `<div class="order-pipeline" style="margin-bottom:16px">${pipeline}</div>` : ''}
     <div class="order-items-summary">${itemsHtml}
       <div class="order-item-line" style="border-top:1px solid var(--glass-border);margin-top:8px;padding-top:8px;font-weight:700;color:var(--text-primary)">
-        <span>Total</span><span style="color:var(--gold);font-family:'Playfair Display',serif">₹${order.totalAmount || 0}</span>
+        <span>Total</span><span style="color:var(--gold);font-family:'DM Serif Display',serif">₹${order.totalAmount || 0}</span>
       </div>
     </div>
     ${orderStatus === 'ready' ? `

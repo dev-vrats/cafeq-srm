@@ -5,115 +5,112 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover" />
   <title>CaféQ — SRM Nescafé | Login</title>
   <meta name="description" content="CaféQ — Pre-order your coffee from SRM Nescafé kiosk. Skip the queue, pick up on your schedule." />
-  <meta name="theme-color" content="#1A0A06" />
+  <meta name="theme-color" content="#FAF6EE" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
   <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/auth.css" />
+  <link rel="stylesheet" href="css/auth.css?v=5" />
 </head>
 <body>
-  <div class="bg-layer" aria-hidden="true"></div>
   <div id="toast-container"></div>
 
   <main class="auth-page">
-    <!-- Brand -->
-    <header class="auth-brand">
-      <span class="auth-brand-sub">Pre-Order App</span>
-    </header>
-
     <!-- Auth Card -->
-    <article class="glass-heavy auth-card">
-      <h1 id="card-title" class="auth-card-title">Welcome back</h1>
-      <p id="card-sub" class="auth-card-subtitle">Sign in to your CaféQ account</p>
+    <article class="auth-card animate-fade-up">
+
+      <!-- Header / Logo -->
+      <div class="auth-header">
+        <div class="auth-logo">
+          <span style="font-family:'DM Serif Display',serif;font-size:1.1rem;font-weight:400">cQ</span>
+        </div>
+        <div class="auth-logo-wordmark">CaféQ</div>
+        <div class="auth-tagline">SRM Nescafé · Pre-Order &amp; Skip the Queue</div>
+      </div>
 
       <!-- Tab Toggle -->
       <div class="auth-tabs" role="tablist">
-        <button id="login-tab" class="auth-tab active" role="tab" aria-selected="true" aria-controls="auth-form">
+        <button id="login-tab" class="auth-tab active" role="tab" aria-selected="true">
           Sign In
         </button>
-        <button id="signup-tab" class="auth-tab" role="tab" aria-selected="false" aria-controls="auth-form">
+        <button id="signup-tab" class="auth-tab" role="tab" aria-selected="false">
           Sign Up
         </button>
       </div>
 
-      <!-- Error Box -->
-      <div id="auth-error" class="auth-error hidden" role="alert">
-        <span class="material-symbols-rounded" style="font-size:1.125rem">warning</span>
-        <span id="error-msg"></span>
+      <!-- Form Body -->
+      <div class="auth-form">
+
+        <!-- Error Box -->
+        <div id="auth-error" class="auth-error" role="alert">
+          <span class="material-symbols-rounded" style="font-size:1rem;flex-shrink:0">warning</span>
+          <span id="error-msg"></span>
+        </div>
+
+        <!-- Sign In Panel -->
+        <div id="login-panel" class="auth-panel active">
+          <div class="input-group">
+            <label for="email-input" class="input-label">Email</label>
+            <input id="email-input" type="email" class="input-field" placeholder="you@srmcem.ac.in" autocomplete="email" tabindex="1" />
+          </div>
+          <div class="input-group">
+            <label for="pass-input" class="input-label">Password</label>
+            <div class="input-wrapper">
+              <input id="pass-input" type="password" class="input-field" placeholder="Min. 6 characters" autocomplete="current-password" tabindex="2" />
+              <button type="button" id="eye-btn" class="toggle-password" aria-label="Toggle password">
+                <span class="material-symbols-rounded" id="eye-icon" style="font-size:1.125rem">visibility</span>
+              </button>
+            </div>
+          </div>
+          <button id="auth-submit" type="button" class="btn btn-primary w-full" style="padding:14px" tabindex="3">
+            <span class="btn-text">Sign In</span>
+            <span class="btn-loader" style="display:none"><span class="spinner" style="border-color:rgba(255,255,255,0.2);border-top-color:#fff;width:16px;height:16px"></span></span>
+          </button>
+        </div>
+
+        <!-- Sign Up Panel -->
+        <div id="signup-panel" class="auth-panel">
+          <div class="input-group">
+            <label for="name-input" class="input-label">Your Name</label>
+            <input id="name-input" type="text" class="input-field" placeholder="Dev Trivedi" autocomplete="name" tabindex="1" />
+          </div>
+          <div class="input-group">
+            <label for="signup-email" class="input-label">Email</label>
+            <input id="signup-email" type="email" class="input-field" placeholder="you@srmcem.ac.in" autocomplete="email" tabindex="2" />
+          </div>
+          <div class="input-group">
+            <label for="signup-pass" class="input-label">Password</label>
+            <div class="input-wrapper">
+              <input id="signup-pass" type="password" class="input-field" placeholder="Min. 6 characters" autocomplete="new-password" tabindex="3" />
+              <button type="button" id="eye-btn-2" class="toggle-password" aria-label="Toggle password">
+                <span class="material-symbols-rounded" id="eye-icon-2" style="font-size:1.125rem">visibility</span>
+              </button>
+            </div>
+          </div>
+          <button id="signup-submit" type="button" class="btn btn-primary w-full" style="padding:14px" tabindex="4">
+            <span class="btn-text">Create Account</span>
+            <span class="btn-loader" style="display:none"><span class="spinner" style="border-color:rgba(255,255,255,0.2);border-top-color:#fff;width:16px;height:16px"></span></span>
+          </button>
+        </div>
+
+      </div><!-- /auth-form -->
+
+      <div class="auth-footer">
+        By signing in, you agree to our terms. SRM Nescafé Kiosk pre-order service.
       </div>
-
-      <!-- Form -->
-      <form id="auth-form" class="auth-form" novalidate>
-        <!-- Name (signup only) -->
-        <div id="name-field" class="input-group name-field hidden-field">
-          <label for="name-input" class="input-label">Your Name</label>
-          <div class="input-wrapper">
-            <span class="material-symbols-rounded input-icon">person</span>
-            <input
-              id="name-input"
-              type="text"
-              class="input-field"
-              placeholder="Dev Trivedi"
-              autocomplete="name"
-              tabindex="1"
-            />
-          </div>
-        </div>
-
-        <!-- Email -->
-        <div class="input-group">
-          <label for="email-input" class="input-label">Email Address</label>
-          <div class="input-wrapper">
-            <span class="material-symbols-rounded input-icon">mail</span>
-            <input
-              id="email-input"
-              type="email"
-              class="input-field"
-              placeholder="you@srmcem.ac.in"
-              autocomplete="email"
-              tabindex="2"
-            />
-          </div>
-        </div>
-
-        <!-- Password -->
-        <div class="input-group">
-          <label for="pass-input" class="input-label">Password</label>
-          <div class="input-wrapper">
-            <span class="material-symbols-rounded input-icon">lock</span>
-            <input
-              id="pass-input"
-              type="password"
-              class="input-field"
-              placeholder="Min. 6 characters"
-              autocomplete="current-password"
-              tabindex="3"
-            />
-            <button type="button" id="eye-btn" class="input-eye" aria-label="Toggle password visibility">
-              <span class="material-symbols-rounded" id="eye-icon">visibility</span>
-            </button>
-          </div>
-        </div>
-
-
-
-        <!-- Submit -->
-        <button id="auth-submit" type="button" class="btn btn-primary auth-submit" tabindex="4">
-          <span class="btn-text">Sign In</span>
-          <span class="btn-loader">
-            <span class="spinner" style="border-color:rgba(26,10,6,0.2);border-top-color:#1A0A06"></span>
-          </span>
-        </button>
-      </form>
     </article>
 
     <!-- Feature pills -->
-    <div class="auth-features" aria-label="App features">
-      <div class="auth-feature-pill"><span class="material-symbols-rounded" style="font-size:1rem">schedule</span> Slot Booking</div>
-      <div class="auth-feature-pill"><span class="material-symbols-rounded" style="font-size:1rem">speed</span> Live Rush Meter</div>
-      <div class="auth-feature-pill"><span class="material-symbols-rounded" style="font-size:1rem">loyalty</span> Rewards</div>
-      <div class="auth-feature-pill"><span class="material-symbols-rounded" style="font-size:1rem">group</span> Group Orders</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:20px;max-width:400px">
+      <div style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-full);font-size:0.75rem;font-weight:600;color:var(--text-secondary)">
+        <span class="material-symbols-rounded" style="font-size:0.9rem">schedule</span> Slot Booking
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-full);font-size:0.75rem;font-weight:600;color:var(--text-secondary)">
+        <span class="material-symbols-rounded" style="font-size:0.9rem">speed</span> Live Rush
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-full);font-size:0.75rem;font-weight:600;color:var(--text-secondary)">
+        <span class="material-symbols-rounded" style="font-size:0.9rem">loyalty</span> Rewards
+      </div>
     </div>
   </main>
 

@@ -5,23 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover" />
   <title>CaféQ — Owner Dashboard</title>
   <meta name="description" content="CaféQ Owner Dashboard — Manage orders, track rush, and operate the SRM Nescafé kiosk." />
-  <meta name="theme-color" content="#1A0A06" />
+  <meta name="theme-color" content="#FAF6EE" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
   <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/owner.css?v=5" />
+  <link rel="stylesheet" href="css/owner.css?v=6" />
 </head>
 <body class="owner-body">
-  <div class="bg-layer" aria-hidden="true"></div>
   <div id="toast-container"></div>
 
   <div class="owner-shell">
 
-    <!-- ── Owner Top Bar ── -->
+    <!-- Owner Top Bar -->
     <header class="owner-topbar">
       <div class="owner-brand">
-        <div class="owner-brand-title">Owner Dashboard</div>
+        <div class="owner-brand-title">CaféQ</div>
+        <div class="owner-brand-sub">Owner Dashboard</div>
       </div>
 
       <div class="owner-topbar-right">
@@ -29,18 +29,18 @@
         <!-- Rush Level Selector -->
         <div class="rush-selector" role="group" aria-label="Rush level">
           <button class="rush-sel-btn active" data-level="relaxed">
-            <span class="material-symbols-rounded" style="font-size:1rem">radio_button_checked</span> Relaxed
+            <span class="material-symbols-rounded" style="font-size:0.875rem">radio_button_checked</span> Relaxed
           </button>
           <button class="rush-sel-btn" data-level="busy">
-            <span class="material-symbols-rounded" style="font-size:1rem">warning</span> Busy
+            <span class="material-symbols-rounded" style="font-size:0.875rem">warning</span> Busy
           </button>
           <button class="rush-sel-btn" data-level="super_jammed">
-            <span class="material-symbols-rounded" style="font-size:1rem">local_fire_department</span> Jammed
+            <span class="material-symbols-rounded" style="font-size:0.875rem">local_fire_department</span> Jammed
           </button>
         </div>
 
         <!-- Kiosk Open/Close -->
-        <div class="kiosk-status-toggle glass-sm">
+        <div class="kiosk-status-toggle">
           <span id="kiosk-status-dot" class="kiosk-dot"></span>
           <span id="kiosk-status-label" class="kiosk-toggle-label">Open</span>
           <label class="toggle-switch" aria-label="Kiosk open status">
@@ -50,14 +50,14 @@
         </div>
 
         <!-- Logout -->
-        <button id="logout-btn" class="btn btn-glass" style="padding:10px 16px;font-size:0.875rem;display:flex;align-items:center;gap:6px">
-          <span class="material-symbols-rounded" style="font-size:1.125rem">logout</span>
+        <button id="logout-btn" class="btn btn-glass" style="padding:9px 16px;font-size:0.875rem;display:flex;align-items:center;gap:6px">
+          <span class="material-symbols-rounded" style="font-size:1rem">logout</span>
           Sign Out
         </button>
       </div>
     </header>
 
-    <!-- ── Main Dashboard Grid ── -->
+    <!-- Main Dashboard Grid -->
     <div class="owner-main">
 
       <!-- Left: Orders Feed -->
@@ -65,30 +65,30 @@
 
         <!-- Stats Banner -->
         <div class="stats-banner">
-          <div class="glass-card stat-card animate-fade-up">
+          <div class="stat-card animate-fade-up">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-              <span class="material-symbols-rounded" style="font-size:1.125rem;color:var(--gold)">payments</span>
+              <span class="material-symbols-rounded" style="font-size:1rem;color:var(--amber-dark)">payments</span>
               <div class="stat-label">Today's Revenue</div>
             </div>
             <div id="stat-revenue" class="stat-value">₹0</div>
           </div>
-          <div class="glass-card stat-card animate-fade-up stagger-1">
+          <div class="stat-card animate-fade-up stagger-1">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-              <span class="material-symbols-rounded" style="font-size:1.125rem;color:var(--gold)">receipt_long</span>
+              <span class="material-symbols-rounded" style="font-size:1rem;color:var(--amber-dark)">receipt_long</span>
               <div class="stat-label">Total Orders</div>
             </div>
             <div id="stat-orders" class="stat-value">0</div>
           </div>
-          <div class="glass-card stat-card animate-fade-up stagger-2">
+          <div class="stat-card animate-fade-up stagger-2">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-              <span class="material-symbols-rounded" style="font-size:1.125rem;color:var(--status-yellow)">pending_actions</span>
+              <span class="material-symbols-rounded" style="font-size:1rem;color:var(--status-yellow)">pending_actions</span>
               <div class="stat-label">Active Orders</div>
             </div>
             <div id="stat-active" class="stat-value">0</div>
           </div>
-          <div class="glass-card stat-card animate-fade-up stagger-3">
+          <div class="stat-card animate-fade-up stagger-3">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-              <span class="material-symbols-rounded" style="font-size:1.125rem;color:var(--status-green)">done_all</span>
+              <span class="material-symbols-rounded" style="font-size:1rem;color:var(--status-green)">done_all</span>
               <div class="stat-label">Ready to Pickup</div>
             </div>
             <div id="stat-ready" class="stat-value">0</div>
@@ -97,30 +97,30 @@
 
         <!-- Orders Header & Filters -->
         <div class="orders-section-title animate-fade-up stagger-4">
-          <span class="material-symbols-rounded" style="font-size:1.375rem;color:var(--gold)">list_alt</span>
+          <span class="material-symbols-rounded" style="font-size:1.25rem;color:var(--amber-dark)">list_alt</span>
           <span>Live Orders</span>
-          <span class="badge badge-yellow" id="active-orders-count" style="font-size:0.75rem">0 active</span>
+          <span class="badge badge-amber" id="active-orders-count" style="font-size:0.75rem">0 active</span>
         </div>
 
         <div class="orders-filter-bar">
           <button class="filter-pill active" data-filter="active">
-            <span class="material-symbols-rounded" style="font-size:0.875rem">pending</span> Active
+            <span class="material-symbols-rounded" style="font-size:0.8125rem">pending</span> Active
           </button>
           <button class="filter-pill" data-filter="ready">
-            <span class="material-symbols-rounded" style="font-size:0.875rem">check_circle</span> Ready
+            <span class="material-symbols-rounded" style="font-size:0.8125rem">check_circle</span> Ready
           </button>
           <button class="filter-pill" data-filter="all">
-            <span class="material-symbols-rounded" style="font-size:0.875rem">density_medium</span> All
+            <span class="material-symbols-rounded" style="font-size:0.8125rem">density_medium</span> All
           </button>
           <button class="filter-pill" data-filter="completed">
-            <span class="material-symbols-rounded" style="font-size:0.875rem">task_alt</span> Completed
+            <span class="material-symbols-rounded" style="font-size:0.8125rem">task_alt</span> Completed
           </button>
         </div>
 
         <!-- Orders Feed -->
         <div id="orders-feed" class="orders-feed">
           <div class="orders-empty">
-            <span class="material-symbols-rounded orders-empty-emoji" style="font-size:3.5rem;display:block;margin-bottom:16px;color:var(--text-muted)">local_cafe</span>
+            <span class="material-symbols-rounded orders-empty-emoji">local_cafe</span>
             <div class="orders-empty-text">No active orders right now.<br>Sit back and enjoy the calm before the rush!</div>
           </div>
         </div>
@@ -131,9 +131,9 @@
       <aside class="owner-sidebar">
 
         <!-- Upcoming Slots -->
-        <div class="glass-card slots-timeline animate-fade-up">
+        <div class="slots-timeline animate-fade-up">
           <div class="slots-title">
-            <span class="material-symbols-rounded" style="font-size:1.125rem;color:var(--gold)">schedule</span>
+            <span class="material-symbols-rounded" style="font-size:1rem;color:var(--amber-dark)">schedule</span>
             Upcoming Slots
           </div>
           <div id="slots-timeline">
@@ -142,9 +142,9 @@
         </div>
 
         <!-- Popular Items -->
-        <div class="glass-card popular-items-widget animate-fade-up stagger-1">
+        <div class="popular-items-widget animate-fade-up stagger-1">
           <div class="slots-title">
-            <span class="material-symbols-rounded" style="font-size:1.125rem;color:var(--gold)">emoji_events</span>
+            <span class="material-symbols-rounded" style="font-size:1rem;color:var(--amber-dark)">emoji_events</span>
             Today's Top Items
           </div>
           <div id="popular-items-list">
@@ -152,20 +152,20 @@
           </div>
         </div>
 
-        <!-- Quick Guide (compact) -->
-        <div class="glass animate-fade-up stagger-2" style="padding:var(--space-md)">
-          <div style="font-weight:700;margin-bottom:10px;font-size:0.8125rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em">Quick Guide</div>
-          <div style="display:flex;flex-direction:column;gap:6px">
+        <!-- Quick Guide -->
+        <div class="card animate-fade-up stagger-2" style="padding:var(--space-md)">
+          <div style="font-weight:700;margin-bottom:10px;font-size:0.6875rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em">Quick Guide</div>
+          <div style="display:flex;flex-direction:column;gap:7px">
             <div style="display:flex;gap:8px;align-items:center;font-size:0.8125rem">
-              <span class="badge badge-yellow" style="padding:2px 6px;font-size:0.6875rem;flex-shrink:0">New</span>
+              <span class="badge badge-yellow" style="padding:2px 7px;font-size:0.625rem;flex-shrink:0">New</span>
               <span style="color:var(--text-secondary)">→ Start Preparing</span>
             </div>
             <div style="display:flex;gap:8px;align-items:center;font-size:0.8125rem">
-              <span class="badge badge-blue" style="padding:2px 6px;font-size:0.6875rem;flex-shrink:0">Making</span>
+              <span class="badge badge-blue" style="padding:2px 7px;font-size:0.625rem;flex-shrink:0">Making</span>
               <span style="color:var(--text-secondary)">→ Mark as Ready</span>
             </div>
             <div style="display:flex;gap:8px;align-items:center;font-size:0.8125rem">
-              <span class="badge badge-green" style="padding:2px 6px;font-size:0.6875rem;flex-shrink:0">Ready</span>
+              <span class="badge badge-green" style="padding:2px 7px;font-size:0.625rem;flex-shrink:0">Ready</span>
               <span style="color:var(--text-secondary)">→ Mark Collected</span>
             </div>
           </div>
