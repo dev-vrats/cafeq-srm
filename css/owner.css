@@ -522,17 +522,76 @@ body.owner-body {
 }
 .order-card.new-order { animation: new-order-highlight 1.5s var(--ease-smooth); }
 
-/* ── Mobile ── */
+/* ── Mobile (≤ 600px) ── */
 @media (max-width: 600px) {
-  .owner-shell { padding: 0 var(--space-md); }
-  .owner-topbar {
-    margin: 0 calc(-1 * var(--space-md));
-    padding: var(--space-md);
-    flex-direction: column;
-    align-items: flex-start;
+  .owner-shell {
+    padding: 0 12px;
   }
-  .owner-topbar-right { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+
+  .owner-topbar {
+    margin: 0 -12px;
+    padding: 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .owner-topbar-right {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 6px;
+    padding-bottom: 2px;
+  }
+  .owner-topbar-right::-webkit-scrollbar { display: none; }
+
+  /* Rush selector: scrollable row */
+  .rush-selector {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+  .rush-selector::-webkit-scrollbar { display: none; }
+  .rush-sel-btn { flex-shrink: 0; font-size: 0.625rem; padding: 4px 8px; }
+
+  /* Kiosk toggle */
+  .kiosk-status-toggle { flex-shrink: 0; }
+  .kiosk-toggle-label { font-size: 0.75rem; }
+
+  /* Sign out btn */
+  #logout-btn { margin-left: auto; flex-shrink: 0; padding: 8px 12px; font-size: 0.75rem; }
+  #logout-btn span.material-symbols-rounded { display: none; }
+
+  /* Stats: 2-col grid */
   .stats-banner { grid-template-columns: 1fr 1fr; }
+  .stat-value { font-size: 1.25rem; }
+
+  /* Orders: full-width feed */
+  .orders-section-title { font-size: 0.9375rem; }
+
+  /* Filter pills: horizontally scrollable */
+  .orders-filter-bar {
+    gap: 6px;
+    padding-bottom: 4px;
+  }
+
+  /* Order cards */
+  .order-card { padding: 12px; }
   .order-actions { flex-direction: column; }
-  .rush-selector { flex-wrap: wrap; }
+  .action-btn { padding: 10px 12px; font-size: 0.8125rem; }
+
+  /* Sidebar goes below main on mobile */
+  .owner-main { padding: 12px 0; }
 }
+
+/* ── Tiny screens (< 380px) ── */
+@media (max-width: 380px) {
+  .owner-topbar { padding: 10px; }
+  .stats-banner { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .stat-card { padding: 8px 10px; }
+  .stat-value { font-size: 1.125rem; }
+  .stat-label { font-size: 0.5625rem; }
+}
+

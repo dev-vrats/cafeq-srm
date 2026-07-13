@@ -116,6 +116,7 @@ html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -128,6 +129,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Prevent input overflow on mobile */
+input, textarea, select {
+  max-width: 100%;
+}
+
 
 /* ── Background — clean cream, no image ── */
 .bg-layer {

@@ -6,9 +6,11 @@
 .auth-page {
   min-height: 100dvh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--space-lg);
+  gap: 16px;
+  padding: 20px 16px 32px;
   background: var(--bg);
   position: relative;
   overflow: hidden;
@@ -39,7 +41,7 @@
 /* ── Auth Card ── */
 .auth-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   background: var(--surface);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border);
@@ -49,11 +51,26 @@
   z-index: 1;
 }
 
+/* ── Feature pills row ── */
+.auth-feature-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 420px;
+  z-index: 1;
+}
+
 /* ── Auth Header ── */
 .auth-header {
-  padding: var(--space-xl) var(--space-xl) var(--space-lg);
+  padding: 24px 24px 20px;
   text-align: center;
   border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 400px) {
+  .auth-header { padding: 20px 16px 16px; }
 }
 
 .auth-logo {
@@ -126,10 +143,14 @@
 
 /* ── Auth Form ── */
 .auth-form {
-  padding: var(--space-xl);
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+}
+
+@media (max-width: 400px) {
+  .auth-form { padding: 16px; }
 }
 
 .auth-panel { display: none; }
@@ -240,10 +261,11 @@
 
 /* ── Auth Footer ── */
 .auth-footer {
-  padding: var(--space-md) var(--space-xl);
+  padding: 12px 24px;
   border-top: 1px solid var(--border);
   text-align: center;
   font-size: 0.75rem;
   color: var(--text-muted);
   background: var(--surface-2);
+  line-height: 1.5;
 }
