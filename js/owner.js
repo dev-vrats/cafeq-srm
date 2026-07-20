@@ -155,43 +155,10 @@ function renderOrders() {
 
   // Remove empty-state if present
   const emptyState = feed.querySelector('.orders-empty');
-  if (emptyState) emptyState.remove();
-
-  // Build lookup of existing cards
-  const existingCards = new Map();
-  feed.querySelectorAll('[data-order-id]').forEach(el => {
-    existingCards.set(el.dataset.orderId, el);
-  });
-
-  const renderedIds = new Set();
-
-  filtered.forEach((order, i) => {
-    renderedIds.add(order.id);
-    const existing = existingCards.get(order.id);
-
-    if (existing) {
-      // Only re-render if status actually changed (avoids flash)
-      if (existing.dataset.status !== order.status) {
-        const card = buildOwnerOrderCard(order);
-        feed.insertBefore(card, existing);
-        existing.remove();
-      }
-      // Else leave it alone — no flicker
-    } else {
-      // New card — insert at correct position
-      const card = buildOwnerOrderCard(order);
-      const allCards = [...feed.children];
-      if (allCards[i]) {
-        feed.insertBefore(card, allCards[i]);
-      } else {
-        feed.appendChild(card);
-      }
-    }
-  });
-
-  // Remove stale cards no longer in filtered
-  existingCards.forEach((el, id) => {
-    if (!renderedIds.has(id)) el.remove();
+  // Simple full re-render (owner dashboard has no stateful widgets in cards)
+  feed.innerHTML = '';
+  filtered.forEach(order => {
+    feed.appendChild(buildOwnerOrderCard(order));
   });
 }
 
@@ -254,16 +221,25 @@ function buildOwnerOrderCard(order) {
       const nextStatus = btn.dataset.nextStatus;
       btn.disabled = true;
       const originalHtml = btn.innerHTML;
-      btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-flex"></div> Updating…';
+      btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-flex"></div>';
+      
+      // Safety timeout: if the Firestore listener hasn't re-rendered the card
+      // within 5 seconds, force a full re-render so the spinner never gets stuck
+      const safetyTimer = setTimeout(() => {
+        console.warn('Safety timeout: forcing re-render for order', order.id);
+        renderOrders();
+        updateStats();
+      }, 5000);
+      
       try {
         await updateOrderStatus(order.id, nextStatus);
         showToast(getStatusToast(nextStatus, order.userName));
-        // The real-time Firestore listener (listenToAllOrders) will fire and
-        // call renderOrders() which replaces this card automatically.
-        // No manual re-render needed here — doing so races with the listener.
+        // Firestore real-time listener will call renderOrders() and replace this card.
+        // Safety timer above is a backup in case listener is slow.
       } catch (e) {
+        clearTimeout(safetyTimer);
         console.error('updateOrderStatus failed:', e);
-        showToast('❌ Failed to update order. Check connection.', 'error');
+        showToast('\u274c Failed to update order. Check connection.', 'error');
         btn.disabled = false;
         btn.innerHTML = originalHtml;
       }
