@@ -699,7 +699,10 @@ function buildOrderCard(order, isPast) {
       <div style="margin-top:12px;text-align:center;font-size:0.75rem;color:var(--text-muted)">
         <span class="material-symbols-rounded" style="font-size:1rem;vertical-align:middle">check_circle</span>
         Collected &amp; paid ✓
-      </div>` : ''}
+      </div>
+      <button class="btn btn-glass print-bill-btn" onclick="printBill('${order.id}')" style="margin-top:12px; width:100%; padding: 8px; font-size: 0.8125rem;">
+        <span class="material-symbols-rounded" style="font-size:1rem">receipt_long</span> Download Receipt
+      </button>` : ''}
     <div id="game-slot-${order.id}"></div>`;
 
   // Inject game for preparing orders
@@ -829,3 +832,140 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   $('profile-photo-input')?.addEventListener('change', handleProfileUpload);
 });
+
+// ── Print Receipt Animation & Download ──
+window.printBill = async function(orderId) {
+  const order = state.orders.find(o => o.id === orderId);
+  if (!order) return;
+
+  const overlay = $('receipt-overlay');
+  const paper = $('receipt-paper');
+  if (!overlay || !paper) return;
+
+  // Render receipt HTML
+  const itemsHtml = (order.items || []).map(i => `
+    <div class="receipt-row">
+      <span>${i.qty}x ${i.name}</span>
+      <span>Rs ${i.price * i.qty}</span>
+    </div>
+  `).join('');
+
+  paper.innerHTML = `
+    <div class="receipt-header">
+      <div class="receipt-title">CaféQ</div>
+      <div class="receipt-subtitle">SRM Nescafé Kiosk</div>
+    </div>
+    <div style="font-size:0.875rem;margin-bottom:16px;">
+      Order: #${order.id.slice(-6).toUpperCase()}<br>
+      Date: ${order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString()}
+    </div>
+    <div class="receipt-items">
+      ${itemsHtml}
+    </div>
+    <div class="receipt-total">
+      <span>Total</span>
+      <span>Rs ${order.totalAmount}</span>
+    </div>
+    <div class="receipt-footer">
+      Thank you for your order!
+    </div>
+  `;
+
+  // Show and animate
+  overlay.classList.add('active');
+  paper.classList.remove('animate-up');
+  void paper.offsetWidth; // trigger reflow
+  paper.classList.add('animate-up');
+
+  // Wait for animation to finish, then download
+  setTimeout(() => {
+    downloadReceiptImage(order);
+    
+    // Hide after a brief pause
+    setTimeout(() => {
+      overlay.classList.remove('active');
+    }, 1000);
+  }, 1600); // 1.5s animation duration + buffer
+};
+
+function downloadReceiptImage(order) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Calculate height dynamically
+  const itemsHeight = (order.items || []).length * 25;
+  canvas.width = 400;
+  canvas.height = 360 + itemsHeight;
+  
+  // Fill white background
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.fillStyle = '#000000';
+  
+  // Header
+  ctx.font = 'bold 32px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('CaféQ', 200, 60);
+  ctx.font = '18px monospace';
+  ctx.fillText('SRM Nescafé Kiosk', 200, 90);
+  
+  // Divider
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath();
+  ctx.moveTo(20, 110);
+  ctx.lineTo(380, 110);
+  ctx.stroke();
+  
+  // Details
+  ctx.textAlign = 'left';
+  ctx.font = '16px monospace';
+  ctx.fillText('Order: #' + order.id.slice(-6).toUpperCase(), 20, 140);
+  const dateStr = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString();
+  ctx.fillText('Date: ' + dateStr, 20, 170);
+  
+  // Divider
+  ctx.beginPath();
+  ctx.moveTo(20, 190);
+  ctx.lineTo(380, 190);
+  ctx.stroke();
+  
+  // Items
+  let y = 230;
+  ctx.font = '16px monospace';
+  (order.items || []).forEach(item => {
+    ctx.textAlign = 'left';
+    ctx.fillText(`${item.qty}x ${item.name}`, 20, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(`Rs ${item.price * item.qty}`, 380, y);
+    y += 25;
+  });
+  
+  // Divider
+  ctx.beginPath();
+  ctx.moveTo(20, y);
+  ctx.lineTo(380, y);
+  ctx.stroke();
+  y += 40;
+  
+  // Total
+  ctx.font = 'bold 22px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('Total', 20, y);
+  ctx.textAlign = 'right';
+  ctx.fillText(`Rs ${order.totalAmount}`, 380, y);
+  
+  y += 50;
+  ctx.font = 'italic 16px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('Thank you for your order!', 200, y);
+  
+  // Trigger download
+  const link = document.createElement('a');
+  link.download = `CafeQ_Receipt_${order.id.slice(-6).toUpperCase()}.png`;
+  link.href = canvas.toDataURL('image/png');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+

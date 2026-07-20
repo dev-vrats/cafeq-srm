@@ -1025,6 +1025,99 @@
   background: var(--status-green);
 }
 
+/* ── Receipt Animation ── */
+.receipt-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.receipt-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.receipt-paper {
+  background: #fff;
+  width: 90%;
+  max-width: 340px;
+  min-height: 400px;
+  padding: 32px 24px;
+  color: #111;
+  font-family: 'Courier New', Courier, monospace;
+  border-radius: 2px 2px 0 0;
+  transform: translateY(100%);
+  position: relative;
+  /* Jagged bottom edge */
+  clip-path: polygon(
+    0% 0%, 100% 0%, 
+    100% 100%, 95% 98%, 90% 100%, 85% 98%, 80% 100%, 75% 98%, 70% 100%, 
+    65% 98%, 60% 100%, 55% 98%, 50% 100%, 45% 98%, 40% 100%, 
+    35% 98%, 30% 100%, 25% 98%, 20% 100%, 15% 98%, 10% 100%, 
+    5% 98%, 0% 100%
+  );
+  box-shadow: 0 -4px 30px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.receipt-paper.animate-up {
+  animation: slideUpReceipt 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes slideUpReceipt {
+  0% { transform: translateY(100%); }
+  70% { transform: translateY(10%); }
+  100% { transform: translateY(10%); }
+}
+
+.receipt-header {
+  text-align: center;
+  margin-bottom: 24px;
+  border-bottom: 2px dashed #ccc;
+  padding-bottom: 16px;
+}
+.receipt-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.receipt-subtitle {
+  font-size: 0.875rem;
+  color: #555;
+}
+.receipt-items {
+  margin-bottom: 24px;
+  border-bottom: 2px dashed #ccc;
+  padding-bottom: 16px;
+  flex-grow: 1;
+}
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+}
+.receipt-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+.receipt-footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #777;
+  font-style: italic;
+}
+
 /* ── Desktop layout ── */
 @media (min-width: 481px) {
   .app-shell { box-shadow: var(--shadow-lg); }
