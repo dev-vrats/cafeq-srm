@@ -484,7 +484,8 @@ function setupOrdersListener() {
       return timeB - timeA;
     });
     activeOrders = orders;
-    if (activeTab === 'orders') renderOrders();
+    // Always render orders (diff-render is safe even if tab is not visible)
+    renderOrders();
     updateOrdersBadge();
   }, err => {
     console.error("Orders listener error:", err);

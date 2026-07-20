@@ -13,8 +13,11 @@ body.owner-body {
   display: grid;
   grid-template-rows: auto 1fr;
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 var(--space-lg);
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* ── Owner Top Bar ── */
@@ -33,6 +36,8 @@ body.owner-body {
   padding-right: var(--space-lg);
   gap: var(--space-md);
   flex-wrap: wrap;
+  box-sizing: border-box;
+  max-width: 100vw;
 }
 
 .owner-brand { display: flex; flex-direction: column; }
@@ -524,8 +529,13 @@ body.owner-body {
 
 /* ── Mobile (≤ 600px) ── */
 @media (max-width: 600px) {
+  body.owner-body {
+    overflow-x: hidden;
+  }
+
   .owner-shell {
     padding: 0 12px;
+    overflow-x: hidden;
   }
 
   .owner-topbar {
@@ -534,15 +544,26 @@ body.owner-body {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
+    width: calc(100% + 24px);
+    box-sizing: border-box;
+  }
+
+  /* Row 1 inside topbar: brand + logout */
+  .owner-topbar-row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .owner-topbar-right {
     width: 100%;
+    display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
     gap: 6px;
     padding-bottom: 2px;
+    align-items: center;
   }
   .owner-topbar-right::-webkit-scrollbar { display: none; }
 
@@ -557,12 +578,11 @@ body.owner-body {
   .rush-sel-btn { flex-shrink: 0; font-size: 0.625rem; padding: 4px 8px; }
 
   /* Kiosk toggle */
-  .kiosk-status-toggle { flex-shrink: 0; }
+  .kiosk-status-toggle { flex-shrink: 0; padding: 5px 10px; }
   .kiosk-toggle-label { font-size: 0.75rem; }
 
   /* Sign out btn */
-  #logout-btn { margin-left: auto; flex-shrink: 0; padding: 8px 12px; font-size: 0.75rem; }
-  #logout-btn span.material-symbols-rounded { display: none; }
+  #logout-btn { flex-shrink: 0; padding: 7px 12px; font-size: 0.75rem; }
 
   /* Stats: 2-col grid */
   .stats-banner { grid-template-columns: 1fr 1fr; }
@@ -577,10 +597,14 @@ body.owner-body {
     padding-bottom: 4px;
   }
 
-  /* Order cards */
-  .order-card { padding: 12px; }
+  /* Order cards: prevent overflow */
+  .order-card { padding: 12px; max-width: 100%; box-sizing: border-box; }
+  .order-card-header { flex-wrap: wrap; gap: 6px; }
+  .order-right { min-width: 0; }
   .order-actions { flex-direction: column; }
-  .action-btn { padding: 10px 12px; font-size: 0.8125rem; }
+  .action-btn { padding: 10px 12px; font-size: 0.8125rem; width: 100%; box-sizing: border-box; }
+  .order-items-grid { max-width: 100%; }
+  .order-item-chip { font-size: 0.6875rem; }
 
   /* Sidebar goes below main on mobile */
   .owner-main { padding: 12px 0; }
