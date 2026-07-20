@@ -23,21 +23,17 @@ body.owner-body {
 /* ── Owner Top Bar ── */
 .owner-topbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-md) 0;
+  flex-direction: column;
+  padding: var(--space-md) var(--space-lg);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: var(--z-nav);
   background: var(--bg);
   margin: 0 calc(-1 * var(--space-lg));
-  padding-left: var(--space-lg);
-  padding-right: var(--space-lg);
-  gap: var(--space-md);
-  flex-wrap: wrap;
+  gap: 8px;
   box-sizing: border-box;
-  max-width: 100vw;
+  width: calc(100% + 2 * var(--space-lg));
 }
 
 .owner-brand { display: flex; flex-direction: column; }
@@ -60,12 +56,24 @@ body.owner-body {
   margin-top: 3px;
 }
 
+/* Row 1: brand + logout */
+.owner-topbar-row1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Row 2: rush + kiosk toggle */
 .owner-topbar-right {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.owner-topbar-right::-webkit-scrollbar { display: none; }
 
 /* ── Kiosk Status Toggle ── */
 .kiosk-status-toggle {
@@ -540,32 +548,12 @@ body.owner-body {
 
   .owner-topbar {
     margin: 0 -12px;
-    padding: 12px;
-    flex-direction: column;
-    align-items: stretch;
+    padding: 10px 12px;
     gap: 8px;
     width: calc(100% + 24px);
-    box-sizing: border-box;
   }
 
-  /* Row 1 inside topbar: brand + logout */
-  .owner-topbar-row1 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .owner-topbar-right {
-    width: 100%;
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-    gap: 6px;
-    padding-bottom: 2px;
-    align-items: center;
-  }
-  .owner-topbar-right::-webkit-scrollbar { display: none; }
+  #logout-btn { padding: 7px 12px; font-size: 0.75rem; }
 
   /* Rush selector: scrollable row */
   .rush-selector {
@@ -578,24 +566,16 @@ body.owner-body {
   .rush-sel-btn { flex-shrink: 0; font-size: 0.625rem; padding: 4px 8px; }
 
   /* Kiosk toggle */
-  .kiosk-status-toggle { flex-shrink: 0; padding: 5px 10px; }
+  .kiosk-status-toggle { padding: 5px 10px; }
   .kiosk-toggle-label { font-size: 0.75rem; }
-
-  /* Sign out btn */
-  #logout-btn { flex-shrink: 0; padding: 7px 12px; font-size: 0.75rem; }
 
   /* Stats: 2-col grid */
   .stats-banner { grid-template-columns: 1fr 1fr; }
   .stat-value { font-size: 1.25rem; }
 
-  /* Orders: full-width feed */
   .orders-section-title { font-size: 0.9375rem; }
 
-  /* Filter pills: horizontally scrollable */
-  .orders-filter-bar {
-    gap: 6px;
-    padding-bottom: 4px;
-  }
+  .orders-filter-bar { gap: 6px; padding-bottom: 4px; }
 
   /* Order cards: prevent overflow */
   .order-card { padding: 12px; max-width: 100%; box-sizing: border-box; }
@@ -606,9 +586,9 @@ body.owner-body {
   .order-items-grid { max-width: 100%; }
   .order-item-chip { font-size: 0.6875rem; }
 
-  /* Sidebar goes below main on mobile */
   .owner-main { padding: 12px 0; }
-}
+
+
 
 /* ── Tiny screens (< 380px) ── */
 @media (max-width: 380px) {

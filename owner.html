@@ -19,11 +19,19 @@
 
     <!-- Owner Top Bar -->
     <header class="owner-topbar">
-      <div class="owner-brand">
-        <div class="owner-brand-title">CaféQ</div>
-        <div class="owner-brand-sub">Owner Dashboard</div>
+      <!-- Row 1: Brand + Logout -->
+      <div class="owner-topbar-row1">
+        <div class="owner-brand">
+          <div class="owner-brand-title">CaféQ</div>
+          <div class="owner-brand-sub">Owner Dashboard</div>
+        </div>
+        <button id="logout-btn" class="btn btn-glass" style="padding:9px 16px;font-size:0.875rem;display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <span class="material-symbols-rounded" style="font-size:1rem">logout</span>
+          Sign Out
+        </button>
       </div>
 
+      <!-- Row 2: Rush Level + Kiosk Toggle -->
       <div class="owner-topbar-right">
 
         <!-- Rush Level Selector -->
@@ -40,7 +48,7 @@
         </div>
 
         <!-- Kiosk Open/Close -->
-        <div class="kiosk-status-toggle">
+        <div class="kiosk-status-toggle" style="margin-left:auto">
           <span id="kiosk-status-dot" class="kiosk-dot"></span>
           <span id="kiosk-status-label" class="kiosk-toggle-label">Open</span>
           <label class="toggle-switch" aria-label="Kiosk open status">
@@ -49,11 +57,6 @@
           </label>
         </div>
 
-        <!-- Logout -->
-        <button id="logout-btn" class="btn btn-glass" style="padding:9px 16px;font-size:0.875rem;display:flex;align-items:center;gap:6px">
-          <span class="material-symbols-rounded" style="font-size:1rem">logout</span>
-          Sign Out
-        </button>
       </div>
     </header>
 
