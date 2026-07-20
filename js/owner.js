@@ -252,23 +252,18 @@ function buildOwnerOrderCard(order) {
   card.querySelectorAll('.action-btn[data-next-status]').forEach(btn => {
     btn.addEventListener('click', async () => {
       const nextStatus = btn.dataset.nextStatus;
-      // Optimistic: disable button and show spinner
       btn.disabled = true;
       const originalHtml = btn.innerHTML;
-      btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-flex"></div>';
+      btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-flex"></div> Updating…';
       try {
         await updateOrderStatus(order.id, nextStatus);
         showToast(getStatusToast(nextStatus, order.userName));
-        // Optimistically update the local order object so card re-renders immediately
-        // without waiting for the Firestore snapshot
-        const idx = allOrders.findIndex(o => o.id === order.id);
-        if (idx !== -1) {
-          allOrders[idx] = { ...allOrders[idx], status: nextStatus };
-          renderOrders();
-          updateStats();
-        }
+        // The real-time Firestore listener (listenToAllOrders) will fire and
+        // call renderOrders() which replaces this card automatically.
+        // No manual re-render needed here — doing so races with the listener.
       } catch (e) {
-        showToast('❌ Failed to update order', 'error');
+        console.error('updateOrderStatus failed:', e);
+        showToast('❌ Failed to update order. Check connection.', 'error');
         btn.disabled = false;
         btn.innerHTML = originalHtml;
       }
