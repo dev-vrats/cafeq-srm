@@ -835,7 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Print Receipt Animation & Download ──
 window.printBill = async function(orderId) {
-  const order = state.orders.find(o => o.id === orderId);
+  const order = activeOrders.find(o => o.id === orderId);
   if (!order) return;
 
   const overlay = $('receipt-overlay');
@@ -873,20 +873,50 @@ window.printBill = async function(orderId) {
 
   // Show and animate
   overlay.classList.add('active');
-  paper.classList.remove('animate-up');
+  paper.classList.remove('animate-stutter');
   void paper.offsetWidth; // trigger reflow
-  paper.classList.add('animate-up');
+  paper.classList.add('animate-stutter');
+  
+  playPrinterSound();
 
-  // Wait for animation to finish, then download
+  // Wait for animation to finish (2.5s), then download
   setTimeout(() => {
     downloadReceiptImage(order);
     
-    // Hide after a brief pause
+    // Hide after download triggers
     setTimeout(() => {
       overlay.classList.remove('active');
-    }, 1000);
-  }, 1600); // 1.5s animation duration + buffer
+    }, 500);
+  }, 2500); // 2.5s animation duration
 };
+
+function playPrinterSound() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    
+    // Play 25 short burst beeps (chi chi chi) to match the 25 CSS steps over 2.5s
+    for(let i=0; i<25; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(450 + Math.random()*100, ctx.currentTime + i*0.1);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      gain.gain.setValueAtTime(0, ctx.currentTime + i*0.1);
+      gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + i*0.1 + 0.01);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + i*0.1 + 0.08);
+      
+      osc.start(ctx.currentTime + i*0.1);
+      osc.stop(ctx.currentTime + i*0.1 + 0.08);
+    }
+  } catch(e) {
+    console.warn('Audio play failed', e);
+  }
+}
 
 function downloadReceiptImage(order) {
   const canvas = document.createElement('canvas');
