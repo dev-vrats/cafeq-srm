@@ -1032,8 +1032,9 @@
   background: rgba(0,0,0,0.6);
   z-index: 1000;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s;
@@ -1052,7 +1053,9 @@
   color: #111;
   font-family: 'Courier New', Courier, monospace;
   border-radius: 2px 2px 0 0;
-  transform: translateY(100vh); /* Start off-screen at bottom */
+  transform: translateY(0) scale(0.9);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   position: relative;
   z-index: 1000;
   /* Jagged bottom edge */
@@ -1068,13 +1071,19 @@
   flex-direction: column;
 }
 
+.receipt-paper.fade-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
 .receipt-paper.animate-stutter {
-  animation: slideUpStutter 2.5s steps(25, end) forwards;
+  /* 15 steps over 3 seconds = 0.2s per step */
+  animation: slideUpStutter 3s steps(15, end) forwards;
 }
 
 @keyframes slideUpStutter {
-  0% { transform: translateY(100vh); }
-  100% { transform: translateY(-120vh); } /* Disappears off the top */
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-120vh) scale(1); opacity: 1; }
 }
 
 .receipt-header {

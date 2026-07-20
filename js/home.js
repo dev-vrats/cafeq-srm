@@ -871,23 +871,38 @@ window.printBill = async function(orderId) {
     </div>
   `;
 
-  // Show and animate
+  // Show overlay
   overlay.classList.add('active');
-  paper.classList.remove('animate-stutter');
-  void paper.offsetWidth; // trigger reflow
-  paper.classList.add('animate-stutter');
+  paper.classList.remove('animate-stutter', 'fade-in');
   
-  playPrinterSound();
+  const printBtn = $('overlay-print-btn');
+  if (printBtn) {
+    printBtn.style.display = 'block';
+    printBtn.style.opacity = '0';
+    printBtn.style.transition = 'opacity 0.4s ease 0.2s';
+  }
 
-  // Wait for animation to finish (2.5s), then download
+  // Trigger fade-in animation
   setTimeout(() => {
-    downloadReceiptImage(order);
-    
-    // Hide after download triggers
-    setTimeout(() => {
-      overlay.classList.remove('active');
-    }, 500);
-  }, 2500); // 2.5s animation duration
+    paper.classList.add('fade-in');
+    if (printBtn) printBtn.style.opacity = '1';
+  }, 50);
+  
+  if (printBtn) {
+    printBtn.onclick = () => {
+      printBtn.style.display = 'none';
+      paper.classList.add('animate-stutter');
+      playPrinterSound();
+      
+      // Wait for 3s stutter animation to finish
+      setTimeout(() => {
+        downloadReceiptImage(order);
+        setTimeout(() => {
+          overlay.classList.remove('active');
+        }, 500);
+      }, 3000);
+    };
+  }
 };
 
 function playPrinterSound() {
@@ -896,22 +911,22 @@ function playPrinterSound() {
     if (!AudioContext) return;
     const ctx = new AudioContext();
     
-    // Play 25 short burst beeps (chi chi chi) to match the 25 CSS steps over 2.5s
-    for(let i=0; i<25; i++) {
+    // Play 15 short burst beeps over 3s (1 beep every 0.2s)
+    for(let i=0; i<15; i++) {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'square';
-      osc.frequency.setValueAtTime(450 + Math.random()*100, ctx.currentTime + i*0.1);
+      osc.frequency.setValueAtTime(450 + Math.random()*100, ctx.currentTime + i*0.2);
       
       osc.connect(gain);
       gain.connect(ctx.destination);
       
-      gain.gain.setValueAtTime(0, ctx.currentTime + i*0.1);
-      gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + i*0.1 + 0.01);
-      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + i*0.1 + 0.08);
+      gain.gain.setValueAtTime(0, ctx.currentTime + i*0.2);
+      gain.gain.linearRampToValueAtTime(0.04, ctx.currentTime + i*0.2 + 0.01);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + i*0.2 + 0.08);
       
-      osc.start(ctx.currentTime + i*0.1);
-      osc.stop(ctx.currentTime + i*0.1 + 0.08);
+      osc.start(ctx.currentTime + i*0.2);
+      osc.stop(ctx.currentTime + i*0.2 + 0.1);
     }
   } catch(e) {
     console.warn('Audio play failed', e);
